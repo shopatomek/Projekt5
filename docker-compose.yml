@@ -74,7 +74,22 @@ services:
       - ./frontend/src:/app/src
     depends_on:
       - backend
-
+  links-helper:
+    image: alpine
+    container_name: dashboard-links
+    depends_on:
+      - frontend
+      - backend
+      - n8n
+    command: >
+      sh -c "echo '--------------------------------------------------' &&
+             echo '🚀 PROJEKT URUCHOMIONY POMYŚLNIE!' &&
+             echo '--------------------------------------------------' &&
+             echo '💻 FRONTEND (Dashboard):  http://localhost:3000' &&
+             echo '⚙️  BACKEND (API Docs):   http://localhost:8000/docs' &&
+             echo '🤖 n8n (Automatyzacja):  http://localhost:5678' &&
+             echo '--------------------------------------------------' &&
+             sleep 10"
 volumes:
   postgres_data:
   n8n_data:
