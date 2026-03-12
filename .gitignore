@@ -1,0 +1,46 @@
+# --- Bezpieczeństwo i Zmienne Środowiskowe ---
+# Nigdy nie commituj plików .env, ponieważ zawierają klucze API Gemini/Ollama i hasła DB
+.env
+.env.local
+.env.*.local
+
+# --- Python (Backend) ---
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/.pytest_cache/
+backend/.venv/
+backend/venv/
+backend/env/
+backend/build/
+backend/dist/
+
+# --- JavaScript / React (Frontend) ---
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/npm-debug.log*
+frontend/yarn-error.log*
+frontend/.eslintcache
+
+# --- n8n ---
+# Jeśli przechowujesz w tym folderze dane binarne lub lokalne bazy sqlite n8n
+n8n/.n8n/
+n8n/backups/
+
+# --- Baza Danych ---
+# Ignorujemy surowe dane, jeśli Docker montuje tu wolumen lokalny
+database/data/
+
+# --- Systemowe / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.bak
+
+# --- Docker ---
+# Logi kontenerów, jeśli są zapisywane do plików w projekcie
+*.log
