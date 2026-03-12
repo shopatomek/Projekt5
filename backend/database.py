@@ -4,11 +4,11 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
 # Pobieranie danych połączenia z Twojego .env
-DB_USER = os.getenv("POSTGRES_USER", "dashboarduser")
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "supersecret123")
+DB_USER = os.getenv("POSTGRES_USER")
+DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 DB_HOST = os.getenv("POSTGRES_HOST", "postgres")
 DB_PORT = os.getenv("POSTGRES_PORT", "5432")
-DB_NAME = os.getenv("POSTGRES_DB", "business_intelligence")
+DB_NAME = os.getenv("POSTGRES_DB")
 
 # URL połączenia
 DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
