@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Dict, List
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-2.0-flash-exp")
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 
 def generate_daily_summary(metrics: Dict) -> Dict:

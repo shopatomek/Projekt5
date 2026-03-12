@@ -24,6 +24,9 @@ services:
   n8n:
     image: n8nio/n8n:latest
     container_name: dashboard-n8n
+    dns: # <-- DODAJ TĘ LINIĘ
+      - 8.8.8.8 # <-- DODAJ TĘ LINIĘ (Google DNS)
+      - 1.1.1.1 # <-- DODAJ TĘ LINIĘ (Cloudflare DNS)
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
@@ -68,10 +71,13 @@ services:
     container_name: dashboard-frontend
     environment:
       - REACT_APP_API_URL=http://localhost:8000
+      - SKIP_PREFLIGHT_CHECK=true
+      - WATCHPACK_POLLING=true # Ważne dla Windowsa, żeby widział zmiany w kodzie
     ports:
       - "3000:3000"
     volumes:
       - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
     depends_on:
       - backend
   links-helper:
