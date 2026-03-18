@@ -1,0 +1,187 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.binance.com/api/v3/ticker/24hr",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "symbols",
+              "value": "[\"BTCUSDT\",\"ETHUSDT\",\"BNBUSDT\",\"SOLUSDT\",\"XRPUSDT\",\"ADAUSDT\",\"DOGEUSDT\",\"AVAXUSDT\",\"TRXUSDT\",\"DOTUSDT\"]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ddd114ae-66d8-4f38-b7cd-c12e8903712b",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        680,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Używamy $input.all(), aby pobrać wszystkie rekordy przekazane do węzła\nconst items = $input.all();\n\nconst rows = items.map(item => {\n  // Dane każdego tickera znajdują się wewnątrz właściwości .json\n  const t = item.json;\n  \n  const symbol = t.symbol.replace(\"USDT\", \"\");\n  const price  = parseFloat(t.lastPrice) || 0;\n  const vol    = Math.round(parseFloat(t.quoteVolume) || 0);\n  const change = parseFloat(t.priceChangePercent) || 0;\n  \n  return `('${symbol}', ${price.toFixed(8)}, 0, ${vol}, ${change.toFixed(4)})`;\n}).join(',\\n');\n\nreturn [{\n  json: {\n    query: `INSERT INTO crypto_prices (symbol, price_usd, market_cap, volume_24h, price_change_24h)\\nVALUES\\n${rows}\\nON CONFLICT DO NOTHING`,\n    count: items.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        560
+      ],
+      "id": "07fd7f67-9744-4848-a99a-29db13bb5ec1",
+      "name": "Normalize → Bulk SQL"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1120,
+        560
+      ],
+      "id": "6eb6dfdb-798d-4069-8405-f4a4d49399c8",
+      "name": "INSERT crypto_prices",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "jsCode": "// Opcjonalnie: cleanup starych danych (trzymaj tylko 30 dni historii)\nreturn [{\n  json: {\n    query: \"DELETE FROM crypto_prices WHERE timestamp < NOW() - INTERVAL '30 days'\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        680
+      ],
+      "id": "9e375b9b-dc5b-496b-b66f-cd14ed3fd5cc",
+      "name": "Prepare Cleanup SQL"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1600,
+        680
+      ],
+      "id": "68213e38-7807-4e41-9218-f4e15655b830",
+      "name": "Cleanup Old Records",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "d250fa6b-ee7f-4649-8756-d988007fee86",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        460,
+        680
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Normalize → Bulk SQL": {
+      "main": [
+        [
+          {
+            "node": "INSERT crypto_prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INSERT crypto_prices": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cleanup SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Cleanup SQL": {
+      "main": [
+        [
+          {
+            "node": "Cleanup Old Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Normalize → Bulk SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3216f4c0-46e8-4f84-81a9-05cbe79231d2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59af3c6cc513318f53722a1b7ef9384c738c9d7867bc5fff66b7782ce7abe507"
+  },
+  "id": "EEvbHIBS5GdPyLE6",
+  "tags": [
+    {
+      "name": "data-ingestion",
+      "id": "hgmBlQaITKzkQxs5",
+      "createdAt": "2026-03-18T10:45:43.520Z",
+      "updatedAt": "2026-03-18T10:45:43.520Z"
+    },
+    {
+      "name": "crypto",
+      "id": "fN1o5PWzycovFEk4",
+      "createdAt": "2026-03-18T10:45:43.560Z",
+      "updatedAt": "2026-03-18T10:45:43.560Z"
+    }
+  ]
+}
