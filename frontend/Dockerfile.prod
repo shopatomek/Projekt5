@@ -1,0 +1,57 @@
+# =================================================================
+# frontend/Dockerfile.prod — Multi-Stage Build
+# =================================================================
+# Etap 1: BUILD
+#   Node.js kompiluje React do statycznych plików (/app/build)
+#   Ten kontener NIE trafia do produkcji – tylko kompiluje
+#
+# Etap 2: SERVE
+#   nginx:alpine (~25MB obrazu) serwuje statyczne pliki
+#   Brak Node.js, webpack, watchers – zero zbędnych procesów
+#
+# Efekt: RAM spada z ~2-4 GB (CRA dev) do ~30-60 MB
+# =================================================================
+
+# ---- Etap 1: Kompilacja ----
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Kopiuj tylko package.json najpierw (cache layer – szybsze rebuild)
+COPY package.json package-lock.json* ./
+RUN npm install --silent
+
+# Kopiuj cały kod i buduj
+COPY . .
+
+# Wstrzyknij URL backendu jako zmienną budowania
+# Wartość jest wpisywana na stałe w bundle – musi wskazywać na publiczny adres
+ARG REACT_APP_API_URL=http://localhost:8000
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
+RUN npm run build
+
+# ---- Etap 2: Serwowanie ----
+FROM nginx:alpine
+
+# Skopiuj wynik budowania z etapu 1
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Konfiguracja nginx: SPA routing (wszystkie ścieżki → index.html)
+RUN echo 'server { \
+    listen 80; \
+    root /usr/share/nginx/html; \
+    index index.html; \
+    location / { \
+        try_files $uri $uri/ /index.html; \
+    } \
+    location /api { \
+        return 404; \
+    } \
+    gzip on; \
+    gzip_types text/plain text/css application/json application/javascript; \
+}' > /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

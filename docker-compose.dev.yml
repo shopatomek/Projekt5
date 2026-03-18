@@ -1,0 +1,38 @@
+# =================================================================
+# docker-compose.dev.yml — Tryb developerski (hot-reload)
+# =================================================================
+# Użycie: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Nadpisuje frontend i backend na tryb z hot-reload.
+# UWAGA: Frontend w tym trybie zużywa ~2-3 GB RAM (CRA dev server).
+# Używaj tylko gdy aktywnie edytujesz kod.
+# =================================================================
+
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile # oryginalny Dockerfile (CRA dev)
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+      - SKIP_PREFLIGHT_CHECK=true
+      - WATCHPACK_POLLING=true # Windows: file watching przez polling
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    deploy:
+      resources:
+        limits:
+          memory: 3G # CRA dev potrzebuje dużo RAM
+
+  backend:
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    deploy:
+      resources:
+        limits:
+          memory: 512M
