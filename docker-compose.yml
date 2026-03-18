@@ -104,7 +104,6 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-      - ./resolv.conf:/etc/resolv.conf:ro
     depends_on:
       postgres:
         condition: service_healthy
