@@ -2,6 +2,8 @@ import os
 from typing import Dict, List, Any, Optional
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+from decimal import Decimal
+from datetime import datetime as dt
 
 # Pobieranie danych połączenia z Twojego .env
 DB_USER = os.getenv("POSTGRES_USER")
@@ -29,7 +31,7 @@ def execute_query(query: str, params: Optional[Dict[str, Any]] = None) -> Option
 
             if result.returns_rows:
                 # Mapowanie rzędów na słowniki dla łatwego użycia w JSON (FastAPI)
-                return [dict(row._mapping) for row in result]
+                return [{k: float(v) if isinstance(v, Decimal) else v.isoformat() if isinstance(v, dt) else v for k, v in row._mapping.items()} for row in result]
 
             return None
     except SQLAlchemyError as e:

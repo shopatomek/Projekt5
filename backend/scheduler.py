@@ -6,34 +6,14 @@ from database import execute_query
 
 BINANCE_URL = "https://api.binance.com/api/v3/ticker/24hr"
 
-SYMBOLS = [
-    "BTCUSDT",
-    "ETHUSDT",
-    "BNBUSDT",
-    "SOLUSDT",
-    "XRPUSDT",
-    "ADAUSDT",
-    "DOGEUSDT",
-    "AVAXUSDT",
-    "TRXUSDT",
-    "DOTUSDT",
-    "LINKUSDT",
-    "MATICUSDT",
-    "LTCUSDT",
-    "UNIUSDT",
-    "ATOMUSDT",
-    "NEARUSDT",
-    "XLMUSDT",
-    "ETCUSDT",
-    "FILUSDT",
-    "APTUSDT",
-]
+symbols_str = '["BTCUSDT","ETHUSDT","BNBUSDT","SOLUSDT","XRPUSDT","ADAUSDT","DOGEUSDT","AVAXUSDT","TRXUSDT","DOTUSDT","LINKUSDT","MATICUSDT","LTCUSDT","UNIUSDT","ATOMUSDT","NEARUSDT","XLMUSDT","ETCUSDT","FILUSDT","APTUSDT"]'
 
 
 async def fetch_and_store_crypto():
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.get(BINANCE_URL, params={"symbols": str(SYMBOLS).replace("'", '"')})
+            req = httpx.Request("GET", BINANCE_URL, params={"symbols": symbols_str})
+            resp = await client.send(req)
             resp.raise_for_status()
             tickers = resp.json()
 
