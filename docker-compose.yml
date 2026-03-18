@@ -47,9 +47,6 @@ services:
   n8n:
     image: n8nio/n8n:1.34.2
     container_name: dashboard-n8n
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
@@ -99,7 +96,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - COINCAP_API_URL=${COINCAP_API_URL}
+      - BINANCE_API_URL=${BINANCE_API_URL}
     ports:
       - "8000:8000"
     volumes:
