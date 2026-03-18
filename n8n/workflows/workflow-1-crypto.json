@@ -15,13 +15,13 @@
         },
         "options": {}
       },
-      "id": "ddd114ae-66d8-4f38-b7cd-c12e8903712b",
+      "id": "516acab3-1007-4d9f-9679-ecba4000d367",
       "name": "HTTP Request",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [
-        680,
-        620
+        780,
+        780
       ]
     },
     {
@@ -31,27 +31,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        880,
-        560
+        1040,
+        720
       ],
-      "id": "07fd7f67-9744-4848-a99a-29db13bb5ec1",
+      "id": "76d8924c-af18-445d-8d8a-3c814faa0c80",
       "name": "Normalize → Bulk SQL"
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "={{ $json.query }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [
-        1120,
-        560
-      ],
-      "id": "6eb6dfdb-798d-4069-8405-f4a4d49399c8",
-      "name": "INSERT crypto_prices",
-      "credentials": {}
     },
     {
       "parameters": {
@@ -60,27 +44,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1360,
-        680
+        1460,
+        820
       ],
-      "id": "9e375b9b-dc5b-496b-b66f-cd14ed3fd5cc",
+      "id": "099fec7f-dccb-44fe-a7d3-001840da3ed5",
       "name": "Prepare Cleanup SQL"
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "={{ $json.query }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [
-        1600,
-        680
-      ],
-      "id": "68213e38-7807-4e41-9218-f4e15655b830",
-      "name": "Cleanup Old Records",
-      "credentials": {}
     },
     {
       "parameters": {
@@ -92,51 +60,60 @@
           ]
         }
       },
-      "id": "d250fa6b-ee7f-4649-8756-d988007fee86",
+      "id": "060d804f-58df-4682-9f5b-05c1936ed636",
       "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
       "position": [
-        460,
-        680
+        580,
+        860
       ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {}
+      },
+      "id": "c42dc072-931d-427a-b890-a2b3a7981331",
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        1240,
+        720
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "L6EfjENe1Io6XlVz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query  }}",
+        "options": {}
+      },
+      "id": "6831d874-1c8e-4a09-b8a3-4255c4f1642f",
+      "name": "Postgres1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        1640,
+        880
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "L6EfjENe1Io6XlVz",
+          "name": "Postgres account"
+        }
+      }
     }
   ],
   "pinData": {},
   "connections": {
-    "Normalize → Bulk SQL": {
-      "main": [
-        [
-          {
-            "node": "INSERT crypto_prices",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "INSERT crypto_prices": {
-      "main": [
-        [
-          {
-            "node": "Prepare Cleanup SQL",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Prepare Cleanup SQL": {
-      "main": [
-        [
-          {
-            "node": "Cleanup Old Records",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "HTTP Request": {
       "main": [
         [
@@ -158,30 +135,63 @@
           }
         ]
       ]
+    },
+    "Normalize → Bulk SQL": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cleanup SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Cleanup SQL": {
+      "main": [
+        [
+          {
+            "node": "Postgres1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "3216f4c0-46e8-4f84-81a9-05cbe79231d2",
+  "versionId": "5a3aa814-d110-4f5c-ada2-42a96672a6d0",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "59af3c6cc513318f53722a1b7ef9384c738c9d7867bc5fff66b7782ce7abe507"
   },
-  "id": "EEvbHIBS5GdPyLE6",
+  "id": "cLi7IHhq4zetMIx5",
   "tags": [
     {
-      "name": "data-ingestion",
-      "id": "hgmBlQaITKzkQxs5",
       "createdAt": "2026-03-18T10:45:43.520Z",
-      "updatedAt": "2026-03-18T10:45:43.520Z"
+      "updatedAt": "2026-03-18T10:45:43.520Z",
+      "id": "hgmBlQaITKzkQxs5",
+      "name": "data-ingestion"
     },
     {
-      "name": "crypto",
-      "id": "fN1o5PWzycovFEk4",
       "createdAt": "2026-03-18T10:45:43.560Z",
-      "updatedAt": "2026-03-18T10:45:43.560Z"
+      "updatedAt": "2026-03-18T10:45:43.560Z",
+      "id": "fN1o5PWzycovFEk4",
+      "name": "crypto"
     }
   ]
 }
