@@ -2,7 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import Any, Optional, Tuple
 
 from database import execute_query
 from analytics import calculate_crypto_kpis, calculate_stock_kpis
@@ -26,6 +27,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Cache configuration ───────────────────────────────────────────────────────
+# Summary cache: reused for 2h — Groq calls are expensive token-wise
+_summary_cache: dict[str, Any] = {"data": None, "cached_at": None}
+SUMMARY_CACHE_TTL = timedelta(hours=2)
+
+# Trend cache: per symbol, reused for 30min
+_trend_cache: dict[str, Tuple[Any, datetime]] = {}
+TREND_CACHE_TTL = timedelta(minutes=30)
 
 
 @app.get("/")
@@ -58,6 +68,12 @@ async def get_dashboard_overview():
 @app.get("/api/ai/daily-summary")
 async def get_ai_daily_summary():
     try:
+        # Return from cache if still fresh
+        if _summary_cache["data"] is not None and _summary_cache["cached_at"] is not None:
+            if datetime.now() - _summary_cache["cached_at"] < SUMMARY_CACHE_TTL:
+                return _summary_cache["data"]
+
+        # Cache miss — fetch fresh data and call Groq
         weather_data = execute_query("SELECT temperature, humidity FROM weather_data ORDER BY timestamp DESC LIMIT 1")
         news_count_data = execute_query("SELECT COUNT(*) as count FROM news_articles WHERE DATE(published_at) = CURRENT_DATE")
         metrics = {
@@ -66,7 +82,14 @@ async def get_ai_daily_summary():
             "news_count": news_count_data[0]["count"] if news_count_data else 0,
             "weather": weather_data[0] if weather_data else {},
         }
-        return generate_daily_summary(metrics)
+
+        summary = generate_daily_summary(metrics)
+
+        # Store in cache
+        _summary_cache["data"] = summary
+        _summary_cache["cached_at"] = datetime.now()
+
+        return summary
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -74,6 +97,15 @@ async def get_ai_daily_summary():
 @app.get("/api/charts/crypto-trend")
 async def get_crypto_trend(symbol: str = "BTC", days: int = 7):
     try:
+        sym = symbol.upper()
+
+        # Return from cache if still fresh
+        if sym in _trend_cache:
+            cached_result, cached_at = _trend_cache[sym]
+            if datetime.now() - cached_at < TREND_CACHE_TTL:
+                return cached_result
+
+        # Cache miss — query DB and call Groq
         query = f"""
         SELECT price_usd as value, timestamp
         FROM crypto_prices
@@ -81,9 +113,15 @@ async def get_crypto_trend(symbol: str = "BTC", days: int = 7):
         AND timestamp >= NOW() - INTERVAL '{days} days'
         ORDER BY timestamp
         """
-        data = execute_query(query, {"symbol": symbol.upper()})
-        trend_analysis = analyze_trend(data, f"{symbol.upper()} price")
-        return {"symbol": symbol, "data": data, "ai_analysis": trend_analysis}
+        data = execute_query(query, {"symbol": sym})
+        trend_analysis = analyze_trend(data, f"{sym} price")
+
+        result = {"symbol": symbol, "data": data, "ai_analysis": trend_analysis}
+
+        # Store in cache
+        _trend_cache[sym] = (result, datetime.now())
+
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

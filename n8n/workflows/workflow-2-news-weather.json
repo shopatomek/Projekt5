@@ -13,7 +13,7 @@
         }
       },
       "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.3,
+      "typeVersion": 1.1,
       "position": [0, 0],
       "id": "22222222-2222-2222-2222-222222222201",
       "name": "Every Hour"
@@ -21,27 +21,18 @@
 
     {
       "parameters": {
-        "url": "https://newsapi.org/v2/top-headlines",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            { "name": "category", "value": "business" },
-            { "name": "language",  "value": "en" },
-            { "name": "pageSize",  "value": "10" },
-            { "name": "apiKey",    "value": "={{ $env.NEWSAPI_KEY }}" }
-          ]
-        },
+        "url": "https://feeds.bbci.co.uk/news/business/rss.xml",
         "options": {}
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
       "position": [240, -120],
       "id": "22222222-2222-2222-2222-222222222202",
-      "name": "GET NewsAPI Headlines"
+      "name": "GET BBC Business RSS"
     },
     {
       "parameters": {
-        "jsCode": "const articles = $input.first().json.articles || [];\n\nif (articles.length === 0) return [];\n\n// Escape apostrofów w tytułach/opisach żeby nie psuć SQL\nconst esc = (s) => (s || '').replace(/'/g, \"''\").substring(0, 500);\n\nconst rows = articles.map(a => {\n  const title  = esc(a.title);\n  const desc   = esc(a.description);\n  const source = esc(a.source?.name);\n  const url    = (a.url || '').substring(0, 1000);\n  const pubAt  = a.publishedAt || new Date().toISOString();\n  return `('${title}', '${desc}', '${source}', '${url}', '${pubAt}')`;\n}).join(',\\n');\n\nreturn [{\n  json: {\n    query: `INSERT INTO news_articles (title, description, source, url, published_at)\\nVALUES\\n${rows}\\nON CONFLICT DO NOTHING`,\n    article_count: articles.length\n  }\n}];"
+        "jsCode": "const items = $input.all().slice(0, 10);\n\nif (items.length === 0) return [];\n\nconst esc = (s) => (s || '').replace(/'/g, \"''\").substring(0, 500);\n\nconst rows = items.map(item => {\n  const a = item.json;\n  const title  = esc(a.title);\n  const desc   = esc(a.content || a.summary || a.description || '');\n  const url    = (a.link || '').substring(0, 1000);\n  const pubAt  = a.pubDate || a.isoDate || new Date().toISOString();\n  return `('${title}', '${desc}', 'BBC Business', '${url}', '${pubAt}')`;\n}).join(',\\n');\n\nreturn [{\n  json: {\n    query: `INSERT INTO news_articles (title, description, source, url, published_at)\\nVALUES\\n${rows}\\nON CONFLICT DO NOTHING`,\n    article_count: items.length\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -56,40 +47,41 @@
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
+      "typeVersion": 2.3,
       "position": [720, -120],
       "id": "22222222-2222-2222-2222-222222222204",
       "name": "INSERT news_articles",
       "credentials": {
         "postgres": {
-          "id": "1",
-          "name": "Dashboard PostgreSQL"
+          "id": "L6EfjENe1Io6XlVz",
+          "name": "Postgres account"
         }
       }
     },
 
     {
       "parameters": {
-        "url": "https://api.openweathermap.org/data/2.5/weather",
+        "url": "https://api.open-meteo.com/v1/forecast",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
-            { "name": "q",     "value": "Warsaw,PL" },
-            { "name": "units", "value": "metric" },
-            { "name": "appid", "value": "={{ $env.OPENWEATHER_API_KEY }}" }
+            { "name": "latitude",  "value": "52.23" },
+            { "name": "longitude", "value": "21.01" },
+            { "name": "current",   "value": "temperature_2m,relative_humidity_2m,weather_code" },
+            { "name": "timezone",  "value": "Europe/Warsaw" }
           ]
         },
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
+      "typeVersion": 4.1,
       "position": [240, 120],
       "id": "22222222-2222-2222-2222-222222222205",
-      "name": "GET OpenWeather Warsaw"
+      "name": "GET Open-Meteo Warsaw"
     },
     {
       "parameters": {
-        "jsCode": "const w = $input.first().json;\n\nconst city      = w.name || 'Warsaw';\nconst temp      = w.main?.temp ?? 0;\nconst humidity  = w.main?.humidity ?? 0;\nconst condition = w.weather?.[0]?.description || 'unknown';\n\nreturn [{\n  json: {\n    query: `INSERT INTO weather_data (city, temperature, humidity, weather_condition)\\nVALUES ('${city}', ${temp}, ${humidity}, '${condition}')`,\n    city,\n    temp,\n    condition\n  }\n}];"
+        "jsCode": "const w = $input.first().json;\n\nconst current  = w.current || {};\nconst temp     = current.temperature_2m ?? 0;\nconst humidity = current.relative_humidity_2m ?? 0;\n\n// WMO weather code to description\nconst wmoDesc = {\n  0: 'clear sky', 1: 'mainly clear', 2: 'partly cloudy', 3: 'overcast',\n  45: 'foggy', 48: 'icy fog', 51: 'light drizzle', 53: 'moderate drizzle',\n  55: 'heavy drizzle', 61: 'light rain', 63: 'moderate rain', 65: 'heavy rain',\n  71: 'light snow', 73: 'moderate snow', 75: 'heavy snow', 80: 'rain showers',\n  85: 'snow showers', 95: 'thunderstorm', 99: 'thunderstorm with hail'\n};\nconst code      = current.weather_code ?? 0;\nconst condition = (wmoDesc[code] || 'unknown').replace(/'/g, \"''\");\n\nreturn [{\n  json: {\n    query: `INSERT INTO weather_data (city, temperature, humidity, weather_condition)\\nVALUES ('Warsaw', ${temp}, ${humidity}, '${condition}')`,\n    city: 'Warsaw',\n    temp,\n    humidity,\n    condition\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -104,14 +96,14 @@
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
+      "typeVersion": 2.3,
       "position": [720, 120],
       "id": "22222222-2222-2222-2222-222222222207",
       "name": "INSERT weather_data",
       "credentials": {
         "postgres": {
-          "id": "1",
-          "name": "Dashboard PostgreSQL"
+          "id": "L6EfjENe1Io6XlVz",
+          "name": "Postgres account"
         }
       }
     },
@@ -123,14 +115,14 @@
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
+      "typeVersion": 2.3,
       "position": [960, 0],
       "id": "22222222-2222-2222-2222-222222222208",
       "name": "Cleanup Old Data",
       "credentials": {
         "postgres": {
-          "id": "1",
-          "name": "Dashboard PostgreSQL"
+          "id": "L6EfjENe1Io6XlVz",
+          "name": "Postgres account"
         }
       }
     }
@@ -139,12 +131,12 @@
     "Every Hour": {
       "main": [
         [
-          { "node": "GET NewsAPI Headlines",  "type": "main", "index": 0 },
-          { "node": "GET OpenWeather Warsaw", "type": "main", "index": 0 }
+          { "node": "GET BBC Business RSS",  "type": "main", "index": 0 },
+          { "node": "GET Open-Meteo Warsaw", "type": "main", "index": 0 }
         ]
       ]
     },
-    "GET NewsAPI Headlines": {
+    "GET BBC Business RSS": {
       "main": [[{ "node": "Normalize News", "type": "main", "index": 0 }]]
     },
     "Normalize News": {
@@ -153,7 +145,7 @@
     "INSERT news_articles": {
       "main": [[{ "node": "Cleanup Old Data", "type": "main", "index": 0 }]]
     },
-    "GET OpenWeather Warsaw": {
+    "GET Open-Meteo Warsaw": {
       "main": [[{ "node": "Normalize Weather", "type": "main", "index": 0 }]]
     },
     "Normalize Weather": {
@@ -162,13 +154,9 @@
   },
   "pinData": {},
   "active": false,
-  "settings": {
-    "executionOrder": "v1",
-    "saveManualExecutions": true
-  },
-  "versionId": "news-weather-v1-2024",
+  "settings": { "executionOrder": "v1" },
   "meta": {
-    "instanceId": "REPLACE_WITH_YOUR_N8N_INSTANCE_ID"
+    "instanceId": "59af3c6cc513318f53722a1b7ef9384c738c9d7867bc5fff66b7782ce7abe507"
   },
   "id": "news-weather-wf-02",
   "tags": [
