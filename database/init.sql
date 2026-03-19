@@ -6,7 +6,7 @@ CREATE TABLE crypto_prices (
     market_cap BIGINT,
     volume_24h BIGINT,
     price_change_24h DECIMAL(10, 2),
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_crypto_timestamp ON crypto_prices(timestamp DESC);
@@ -18,7 +18,7 @@ CREATE TABLE weather_data (
     temperature DECIMAL(5, 2),
     humidity INTEGER,
     weather_condition VARCHAR(50),
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabela dla newsów
@@ -28,9 +28,9 @@ CREATE TABLE news_articles (
     description TEXT,
     source VARCHAR(100),
     url TEXT,
-    published_at TIMESTAMP,
+    published_at TIMESTAMPTZ,
     sentiment_score DECIMAL(3, 2),
-    fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fetched_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabela dla danych giełdowych
@@ -40,7 +40,7 @@ CREATE TABLE stock_prices (
     close_price DECIMAL(10, 2),
     volume BIGINT,
     trading_date DATE NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(symbol, trading_date)
 );
 
@@ -50,17 +50,17 @@ CREATE TABLE ai_insights (
     insight_type VARCHAR(50) NOT NULL,
     content JSONB NOT NULL,
     data_snapshot JSONB,
-    generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    generated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Widoki agregujące dla dashboardu
 CREATE VIEW daily_crypto_stats AS
-SELECT 
+SELECT
     symbol,
     AVG(price_usd) as avg_price,
     MAX(price_usd) as max_price,
     MIN(price_usd) as min_price,
-    DATE(timestamp) as date
+    DATE(timestamp AT TIME ZONE 'Europe/Warsaw') as date
 FROM crypto_prices
 WHERE timestamp >= CURRENT_DATE - INTERVAL '7 days'
-GROUP BY symbol, DATE(timestamp);
+GROUP BY symbol, DATE(timestamp AT TIME ZONE 'Europe/Warsaw');

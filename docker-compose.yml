@@ -5,6 +5,7 @@ services:
     image: postgres:15-alpine
     container_name: dashboard-postgres
     environment:
+      TZ: Europe/Warsaw
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
@@ -27,6 +28,7 @@ services:
         -c wal_buffers=8MB
         -c checkpoint_completion_target=0.9
         -c log_min_duration_statement=1000
+        -c timezone=Europe/Warsaw
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -48,6 +50,8 @@ services:
     image: n8nio/n8n:1.34.2
     container_name: dashboard-n8n
     environment:
+      - TZ=Europe/Warsaw
+      - GENERIC_TIMEZONE=Europe/Warsaw
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
@@ -90,6 +94,7 @@ services:
     build: ./backend
     container_name: dashboard-backend
     environment:
+      - TZ=Europe/Warsaw
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_DB=${POSTGRES_DB}
@@ -127,6 +132,7 @@ services:
       dockerfile: Dockerfile.prod # nowy plik - patrz frontend/Dockerfile.prod
     container_name: dashboard-frontend
     environment:
+      - TZ=Europe/Warsaw
       - REACT_APP_API_URL=http://localhost:8000
     ports:
       - "3000:80" # nginx słucha na :80 wewnątrz kontenera
@@ -139,6 +145,20 @@ services:
         reservations:
           memory: 32M
     restart: unless-stopped
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dashboard-pgadmin
+    environment:
+      - TZ=Europe/Warsaw
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+    ports:
+      - "5050:80"
+    mem_limit: 256M
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 # -----------------------------------------------------------------
 # Opcjonalnie: tryb developerski z hot-reload (więcej RAM)
@@ -149,12 +169,12 @@ volumes:
   postgres_data:
   n8n_data:
 
-# =================================================================
-# SZACUNKOWE ZUŻYCIE RAMU PO ZMIANACH:
-#   postgres:  128-256 MB  (było: ~200MB)
-#   n8n:       300-500 MB  (było: ~600MB+)
-#   backend:   150-250 MB  (było: ~300MB)
-#   frontend:  30-60  MB   (było: ~2000-4000MB ← GŁÓWNY WINOWAJCA)
-#   Docker Desktop Win11:  ~1-2 GB (overhead systemu)
-#   ŁĄCZNIE:   ~2-3 GB     (było: ~10-16 GB)
-# =================================================================
+    # =================================================================
+    # SZACUNKOWE ZUŻYCIE RAMU PO ZMIANACH:
+    #   postgres:  128-256 MB  (było: ~200MB)
+    #   n8n:       300-500 MB  (było: ~600MB+)
+    #   backend:   150-250 MB  (było: ~300MB)
+    #   frontend:  30-60  MB   (było: ~2000-4000MB ← GŁÓWNY WINOWAJCA)
+    #   Docker Desktop Win11:  ~1-2 GB (overhead systemu)
+    #   ŁĄCZNIE:   ~2-3 GB     (było: ~10-16 GB)
+    # =================================================================
