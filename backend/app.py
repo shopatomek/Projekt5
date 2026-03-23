@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
 from datetime import datetime, timedelta
-from typing import Any, Optional, Tuple
+from typing import Any, Tuple
 
 from database import execute_query
 from analytics import calculate_crypto_kpis, calculate_stock_kpis
