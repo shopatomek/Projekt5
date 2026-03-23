@@ -43,7 +43,7 @@ ODPOWIEDZ W FORMACIE JSON (tylko JSON, bez dodatkowego tekstu):
             temperature=0.7,
             max_tokens=1000,
         )
-        text = response.choices[0].message.content.strip()
+        text = response.choices[0].message.content.strip()  # type: ignore
 
         if text.startswith("```"):
             text = text.split("```")[1]
@@ -87,7 +87,7 @@ Odpowiedź w 2-3 zdaniach, konkretnie i liczbowo."""
             temperature=0.3,
             max_tokens=200,
         )
-        return response.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip()  # pyright: ignore[reportOptionalMemberAccess]
     except Exception as e:
         return f"Trend analysis error: {str(e)}"
 
@@ -109,6 +109,6 @@ Wyjaśnij krótko (2-3 zdania):
             temperature=0.3,
             max_tokens=200,
         )
-        return response.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip()  # pyright: ignore[reportOptionalMemberAccess]
     except Exception as e:
         return f"Unable to explain anomaly: {str(e)}"
