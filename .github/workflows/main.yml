@@ -49,3 +49,15 @@ jobs:
         run: |
           docker build -t dashboard-frontend:latest -f ./frontend/Dockerfile.prod ./frontend
         # Używamy Dockerfile.prod, bo to on jest ram-optimized dla Twojego projektu
+
+  # JOB 3: Security Scan
+  security-scan:
+    needs: lint-python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for secrets in code
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: HEAD~1
