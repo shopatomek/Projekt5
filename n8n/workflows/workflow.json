@@ -1,0 +1,751 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.binance.com/api/v3/ticker/24hr",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "symbols",
+              "value": "[\"BTCUSDT\",\"ETHUSDT\",\"BNBUSDT\",\"SOLUSDT\",\"XRPUSDT\",\"ADAUSDT\",\"DOGEUSDT\",\"AVAXUSDT\",\"TRXUSDT\",\"DOTUSDT\"]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "533192d3-d31b-4c9a-99c5-f83540b67689",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        200,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Używamy $input.all(), aby pobrać wszystkie rekordy przekazane do węzła\nconst items = $input.all();\n\nconst rows = items.map(item => {\n  // Dane każdego tickera znajdują się wewnątrz właściwości .json\n  const t = item.json;\n  \n  const symbol = t.symbol.replace(\"USDT\", \"\");\n  const price  = parseFloat(t.lastPrice) || 0;\n  const vol    = Math.round(parseFloat(t.quoteVolume) || 0);\n  const change = parseFloat(t.priceChangePercent) || 0;\n  \n  return `('${symbol}', ${price.toFixed(8)}, 0, ${vol}, ${change.toFixed(4)})`;\n}).join(',\\n');\n\nreturn [{\n  json: {\n    query: `INSERT INTO crypto_prices (symbol, price_usd, market_cap, volume_24h, price_change_24h)\\nVALUES\\n${rows}\\nON CONFLICT DO NOTHING`,\n    count: items.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        460
+      ],
+      "id": "c289a9b8-3b1a-441c-8f25-9f26ff4bc077",
+      "name": "Normalize → Bulk SQL"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Opcjonalnie: cleanup starych danych (trzymaj tylko 30 dni historii)\nreturn [{\n  json: {\n    query: \"DELETE FROM crypto_prices WHERE timestamp < NOW() - INTERVAL '30 days'\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        560
+      ],
+      "id": "53f29dc4-b4e9-4ed8-a387-6140cff2a8d9",
+      "name": "Prepare Cleanup SQL"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "id": "d00efe08-4928-4a33-9e6f-070f64dbe6a5",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {}
+      },
+      "id": "2566d06f-b7c9-44f2-96aa-780379639008",
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        660,
+        460
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query  }}",
+        "options": {}
+      },
+      "id": "d19ee3e2-305c-42b5-a6f2-09b0143b0e69",
+      "name": "Postgres1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        1060,
+        620
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        880
+      ],
+      "id": "51582a32-380a-4071-a8b0-10f1ab912f3e",
+      "name": "Every Hour"
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.bbci.co.uk/news/business/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        260,
+        760
+      ],
+      "id": "4b1d9e32-8be1-46f4-965b-9a32d63b2594",
+      "name": "GET BBC Business RSS"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().slice(0, 10);\n\nif (items.length === 0) return [];\n\nconst esc = (s) => (s || '').replace(/'/g, \"''\").substring(0, 500);\n\nconst rows = items.map(item => {\n  const a = item.json;\n  const title  = esc(a.title);\n  const desc   = esc(a.content || a.summary || a.description || '');\n  const url    = (a.link || '').substring(0, 1000);\n  const pubAt  = a.pubDate || a.isoDate || new Date().toISOString();\n  return `('${title}', '${desc}', 'BBC Business', '${url}', '${pubAt}')`;\n}).join(',\\n');\n\nreturn [{\n  json: {\n    query: `INSERT INTO news_articles (title, description, source, url, published_at)\\nVALUES\\n${rows}\\nON CONFLICT DO NOTHING`,\n    article_count: items.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        760
+      ],
+      "id": "6dab1e15-d74b-4e9b-817f-daf2a3f1d29c",
+      "name": "Normalize News"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        740,
+        760
+      ],
+      "id": "c1dadcdd-f8ee-49bd-b62a-d328b81d9e04",
+      "name": "INSERT news_articles",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "52.23"
+            },
+            {
+              "name": "longitude",
+              "value": "21.01"
+            },
+            {
+              "name": "current",
+              "value": "temperature_2m,relative_humidity_2m,weather_code"
+            },
+            {
+              "name": "timezone",
+              "value": "Europe/Warsaw"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        260,
+        1000
+      ],
+      "id": "42ccc8e2-097d-4f8a-92f8-1f08590f29e9",
+      "name": "GET Open-Meteo Warsaw"
+    },
+    {
+      "parameters": {
+        "jsCode": "const w = $input.first().json;\n\nconst current  = w.current || {};\nconst temp     = current.temperature_2m ?? 0;\nconst humidity = current.relative_humidity_2m ?? 0;\n\n// WMO weather code to description\nconst wmoDesc = {\n  0: 'clear sky', 1: 'mainly clear', 2: 'partly cloudy', 3: 'overcast',\n  45: 'foggy', 48: 'icy fog', 51: 'light drizzle', 53: 'moderate drizzle',\n  55: 'heavy drizzle', 61: 'light rain', 63: 'moderate rain', 65: 'heavy rain',\n  71: 'light snow', 73: 'moderate snow', 75: 'heavy snow', 80: 'rain showers',\n  85: 'snow showers', 95: 'thunderstorm', 99: 'thunderstorm with hail'\n};\nconst code      = current.weather_code ?? 0;\nconst condition = (wmoDesc[code] || 'unknown').replace(/'/g, \"''\");\n\nreturn [{\n  json: {\n    query: `INSERT INTO weather_data (city, temperature, humidity, weather_condition)\\nVALUES ('Warsaw', ${temp}, ${humidity}, '${condition}')`,\n    city: 'Warsaw',\n    temp,\n    humidity,\n    condition\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        1000
+      ],
+      "id": "ec2a0590-e39d-46eb-a041-29a44cf31212",
+      "name": "Normalize Weather"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        740,
+        1000
+      ],
+      "id": "3563f3ad-a1c8-45b1-8f8a-12180a347c16",
+      "name": "INSERT weather_data",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM news_articles WHERE fetched_at < NOW() - INTERVAL '7 days';\nDELETE FROM weather_data WHERE timestamp < NOW() - INTERVAL '14 days';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        980,
+        880
+      ],
+      "id": "42dd6add-48bc-4187-adf2-87ab9e1db05f",
+      "name": "Cleanup Old Data",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1-5"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        1240
+      ],
+      "id": "a5e0498e-cfe7-4f56-9443-bfd0e17cd521",
+      "name": "Weekdays 08:00"
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/api/dashboard/overview",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        240,
+        1240
+      ],
+      "id": "702b7013-6143-449e-94f8-f2560077de1b",
+      "name": "GET Dashboard Overview"
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/api/ai/daily-summary",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        480,
+        1240
+      ],
+      "id": "2ea8a8fd-b00b-4871-afc8-d5e0ef4fad33",
+      "name": "GET AI Daily Summary"
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResult = $input.first().json;\nconst content = JSON.stringify(aiResult).replace(/'/g, \"''\");\nreturn [{\n  json: {\n    query: `INSERT INTO ai_insights (insight_type, content, generated_at)\\nVALUES ('daily_summary', '${content}'::jsonb, NOW())`,\n    summary: aiResult.summary || 'No summary',\n    insight_count: (aiResult.insights || []).length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        1240
+      ],
+      "id": "d22fb4be-c884-456a-aa7b-c9ba38d8f538",
+      "name": "Prepare Cache SQL"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        960,
+        1240
+      ],
+      "id": "d49753f8-2e88-48bb-aaef-17f7865b37d9",
+      "name": "Cache AI Insights",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        1540
+      ],
+      "id": "6099b792-5aa2-476f-9281-a1cbd9f656f8",
+      "name": "Every 15 Min (Anomaly Check)"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT symbol, price_usd, price_change_24h, timestamp\nFROM crypto_prices\nWHERE timestamp >= NOW() - INTERVAL '15 minutes'\n  AND ABS(price_change_24h) > 5\nORDER BY ABS(price_change_24h) DESC\nLIMIT 5;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        260,
+        1540
+      ],
+      "id": "2596fe3b-f3ba-4769-831f-01e223e2680b",
+      "name": "Check Price Anomalies",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "anomaly-check",
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        500,
+        1540
+      ],
+      "id": "4b2c5460-84bb-45a8-9afc-41350a9dc9fc",
+      "name": "Anomaly Found?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const anomalies = $input.all().map(i => i.json);\n\nconst lines = anomalies.map(a =>\n  `${a.symbol}: USD ${parseFloat(a.price_usd).toFixed(2)} | change 24h: ${parseFloat(a.price_change_24h).toFixed(2)}%`\n).join('\\n');\n\nconsole.log('PRICE ANOMALY DETECTED:');\nconsole.log(lines);\n\nconst message = `Price anomaly detected:\\n${lines}`;\nconst content = JSON.stringify({\n  alert_type: 'price_anomaly',\n  affected_symbols: anomalies.map(a => a.symbol),\n  message,\n  detected_at: new Date().toISOString()\n}).replace(/'/g, \"''\");\n\nreturn [{\n  json: {\n    query: `INSERT INTO ai_insights (insight_type, content, generated_at)\\nVALUES ('price_anomaly', '${content}'::jsonb, NOW())`,\n    affected_symbols: anomalies.map(a => a.symbol),\n    message\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        1500
+      ],
+      "id": "743d7730-f7c2-450a-b53f-ebd2e021e021",
+      "name": "Log / Alert Anomaly"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [
+        980,
+        1500
+      ],
+      "id": "d0f93bbe-4fc3-402e-9f7c-c2379042f0ab",
+      "name": "Save Anomaly to DB",
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "console.log('No price anomalies in the last 15 minutes.');\nreturn [];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        1700
+      ],
+      "id": "520141b2-10b4-4470-99fe-c8fb3a7c1250",
+      "name": "No Anomaly – Skip"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Normalize → Bulk SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize → Bulk SQL": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cleanup SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Cleanup SQL": {
+      "main": [
+        [
+          {
+            "node": "Postgres1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Hour": {
+      "main": [
+        [
+          {
+            "node": "GET BBC Business RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GET Open-Meteo Warsaw",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET BBC Business RSS": {
+      "main": [
+        [
+          {
+            "node": "Normalize News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize News": {
+      "main": [
+        [
+          {
+            "node": "INSERT news_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INSERT news_articles": {
+      "main": [
+        [
+          {
+            "node": "Cleanup Old Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Open-Meteo Warsaw": {
+      "main": [
+        [
+          {
+            "node": "Normalize Weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Weather": {
+      "main": [
+        [
+          {
+            "node": "INSERT weather_data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekdays 08:00": {
+      "main": [
+        [
+          {
+            "node": "GET Dashboard Overview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Dashboard Overview": {
+      "main": [
+        [
+          {
+            "node": "GET AI Daily Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET AI Daily Summary": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cache SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Cache SQL": {
+      "main": [
+        [
+          {
+            "node": "Cache AI Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 Min (Anomaly Check)": {
+      "main": [
+        [
+          {
+            "node": "Check Price Anomalies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Price Anomalies": {
+      "main": [
+        [
+          {
+            "node": "Anomaly Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anomaly Found?": {
+      "main": [
+        [
+          {
+            "node": "Log / Alert Anomaly",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Anomaly – Skip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log / Alert Anomaly": {
+      "main": [
+        [
+          {
+            "node": "Save Anomaly to DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "YOUR_WORKFLOW_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "REPLACE_WITH_YOUR_INSTANCE_ID"
+  },
+  "id": "6WOTowRSdPh0smKa",
+  "tags": [
+    {
+      "createdAt": "2026-03-23T11:32:18.836Z",
+      "updatedAt": "2026-03-23T11:32:18.836Z",
+      "id": "BxRFfq2x0xZBCTbH",
+      "name": "data-ingestion"
+    },
+    {
+      "createdAt": "2026-03-23T11:32:18.847Z",
+      "updatedAt": "2026-03-23T11:32:18.847Z",
+      "id": "QmigVjv1t6KeSPjm",
+      "name": "news"
+    },
+    {
+      "createdAt": "2026-03-23T11:32:18.851Z",
+      "updatedAt": "2026-03-23T11:32:18.851Z",
+      "id": "YDQkeDR1qoZmK0TP",
+      "name": "ai-insights"
+    },
+    {
+      "createdAt": "2026-03-23T11:32:18.852Z",
+      "updatedAt": "2026-03-23T11:32:18.852Z",
+      "id": "EjkHyi4PIDTsT2Dy",
+      "name": "weather"
+    },
+    {
+      "createdAt": "2026-03-23T11:32:18.855Z",
+      "updatedAt": "2026-03-23T11:32:18.855Z",
+      "id": "mnQoOQXat4dYptTp",
+      "name": "anomaly-detection"
+    },
+    {
+      "createdAt": "2026-03-23T11:32:18.867Z",
+      "updatedAt": "2026-03-23T11:32:18.867Z",
+      "id": "pZcXedGWQgDxWNHd",
+      "name": "crypto"
+    }
+  ]
+}
