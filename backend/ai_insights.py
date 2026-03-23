@@ -12,17 +12,17 @@ MODEL = "llama-3.3-70b-versatile"
 def generate_daily_summary(metrics: Dict) -> Dict:
     prompt = f"""Jesteś ekspertem analityki biznesowej. Przeanalizuj dzisiejsze dane i wygeneruj raport:
 
-DANE Z DZIŚ ({datetime.now().strftime('%Y-%m-%d')}):
+DANE Z DZIŚ ({datetime.now().strftime("%Y-%m-%d")}):
 
 Kryptowaluty:
-{json.dumps(metrics.get('crypto_data', []), indent=2)}
+{json.dumps(metrics.get("crypto_data", []), indent=2)}
 
 Akcje:
-{json.dumps(metrics.get('stock_data', []), indent=2)}
+{json.dumps(metrics.get("stock_data", []), indent=2)}
 
-Liczba newsów: {metrics.get('news_count', 0)}
+Liczba newsów: {metrics.get("news_count", 0)}
 
-Pogoda: {json.dumps(metrics.get('weather', {}), indent=2)}
+Pogoda: {json.dumps(metrics.get("weather", {}), indent=2)}
 
 WYGENERUJ:
 1. Krótkie podsumowanie dnia (2-3 zdania) - ogólny ton rynku
@@ -56,7 +56,12 @@ ODPOWIEDZ W FORMACIE JSON (tylko JSON, bez dodatkowego tekstu):
 
     except Exception as e:
         print(f"Błąd generowania AI insights: {e}")
-        return {"summary": "Brak dostępnych insightów AI", "insights": [], "recommendations": [], "error": str(e)}
+        return {
+            "summary": "Brak dostępnych insightów AI",
+            "insights": [],
+            "recommendations": [],
+            "error": str(e),
+        }
 
 
 def analyze_trend(data_points: List[Dict], metric_name: str) -> str:
