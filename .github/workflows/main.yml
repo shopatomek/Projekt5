@@ -1,0 +1,51 @@
+name: CI/CD Pipeline - Projekt 5
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # JOB 1: Lintowanie kodu
+  lint-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff (Linter)
+        run: ruff check backend/ --output-format=github
+        # To sprawdzi Twoje pliki ai_insights.py, app.py itd.
+
+  # JOB 2: Build obrazów Docker -
+  docker-build:
+    needs: lint-python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate Docker Compose
+        run: docker compose config -q
+        # Sprawdza czy Twój plik docker-compose.yml nie ma błędów składni
+
+      - name: Build Backend Image
+        run: |
+          docker build -t dashboard-backend:latest ./backend
+
+      - name: Build Frontend Image (Production)
+        run: |
+          docker build -t dashboard-frontend:latest -f ./frontend/Dockerfile.prod ./frontend
+        # Używamy Dockerfile.prod, bo to on jest ram-optimized dla Twojego projektu
