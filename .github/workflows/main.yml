@@ -28,7 +28,7 @@ jobs:
 
   # JOB 2: Build obrazów Docker -
   docker-build:
-    needs: lint-python
+    needs: [lint-python, security-scan]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
