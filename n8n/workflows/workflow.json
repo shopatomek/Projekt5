@@ -19,10 +19,7 @@
       "name": "HTTP Request",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [
-        200,
-        520
-      ]
+      "position": [200, 520]
     },
     {
       "parameters": {
@@ -30,10 +27,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        460,
-        460
-      ],
+      "position": [460, 460],
       "id": "c289a9b8-3b1a-441c-8f25-9f26ff4bc077",
       "name": "Normalize → Bulk SQL"
     },
@@ -43,10 +37,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        880,
-        560
-      ],
+      "position": [880, 560],
       "id": "53f29dc4-b4e9-4ed8-a387-6140cff2a8d9",
       "name": "Prepare Cleanup SQL"
     },
@@ -65,10 +56,7 @@
       "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [
-        0,
-        600
-      ]
+      "position": [0, 600]
     },
     {
       "parameters": {
@@ -80,10 +68,7 @@
       "name": "Postgres",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [
-        660,
-        460
-      ],
+      "position": [660, 460],
       "credentials": {
         "postgres": {
           "id": "YOUR_POSTGRES_CREDENTIAL_ID",
@@ -101,10 +86,7 @@
       "name": "Postgres1",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [
-        1060,
-        620
-      ],
+      "position": [1060, 620],
       "credentials": {
         "postgres": {
           "id": "YOUR_POSTGRES_CREDENTIAL_ID",
@@ -124,10 +106,7 @@
       },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [
-        20,
-        880
-      ],
+      "position": [20, 880],
       "id": "51582a32-380a-4071-a8b0-10f1ab912f3e",
       "name": "Every Hour"
     },
@@ -138,23 +117,17 @@
       },
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1,
-      "position": [
-        260,
-        760
-      ],
+      "position": [260, 760],
       "id": "4b1d9e32-8be1-46f4-965b-9a32d63b2594",
       "name": "GET BBC Business RSS"
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all().slice(0, 10);\n\nif (items.length === 0) return [];\n\nconst esc = (s) => (s || '').replace(/'/g, \"''\").substring(0, 500);\n\nconst rows = items.map(item => {\n  const a = item.json;\n  const title  = esc(a.title);\n  const desc   = esc(a.content || a.summary || a.description || '');\n  const url    = (a.link || '').substring(0, 1000);\n  const pubAt  = a.pubDate || a.isoDate || new Date().toISOString();\n  return `('${title}', '${desc}', 'BBC Business', '${url}', '${pubAt}')`;\n}).join(',\\n');\n\nreturn [{\n  json: {\n    query: `INSERT INTO news_articles (title, description, source, url, published_at)\\nVALUES\\n${rows}\\nON CONFLICT DO NOTHING`,\n    article_count: items.length\n  }\n}];"
+        "jsCode": "const items = $input.all().slice(0, 10);\n\nif (items.length === 0) return [];\n\nconst esc = (s) => (s || '')\n  .replace(/'/g, \"''\")\n  .replace(/\\$(\\d)/g, '$ $1')\n  .substring(0, 500);\n\nconst rows = items.map(item => {\n  const a = item.json;\n  const title  = esc(a.title);\n  const desc   = esc(a.content || a.summary || a.description || '');\n  const url    = (a.link || '').substring(0, 1000);\n  const pubAt  = a.pubDate || a.isoDate || new Date().toISOString();\n  return `('${title}', '${desc}', 'BBC Business', '${url}', '${pubAt}')`;\n}).join(',\\n');\n\nreturn [{\n  json: {\n    query: `INSERT INTO news_articles (title, description, source, url, published_at)\\nVALUES\\n${rows}\\nON CONFLICT DO NOTHING`,\n    article_count: items.length\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        500,
-        760
-      ],
+      "position": [500, 760],
       "id": "6dab1e15-d74b-4e9b-817f-daf2a3f1d29c",
       "name": "Normalize News"
     },
@@ -166,10 +139,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [
-        740,
-        760
-      ],
+      "position": [740, 760],
       "id": "c1dadcdd-f8ee-49bd-b62a-d328b81d9e04",
       "name": "INSERT news_articles",
       "credentials": {
@@ -207,10 +177,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [
-        260,
-        1000
-      ],
+      "position": [260, 1000],
       "id": "42ccc8e2-097d-4f8a-92f8-1f08590f29e9",
       "name": "GET Open-Meteo Warsaw"
     },
@@ -220,10 +187,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        500,
-        1000
-      ],
+      "position": [500, 1000],
       "id": "ec2a0590-e39d-46eb-a041-29a44cf31212",
       "name": "Normalize Weather"
     },
@@ -235,10 +199,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [
-        740,
-        1000
-      ],
+      "position": [740, 1000],
       "id": "3563f3ad-a1c8-45b1-8f8a-12180a347c16",
       "name": "INSERT weather_data",
       "credentials": {
@@ -256,10 +217,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [
-        980,
-        880
-      ],
+      "position": [980, 880],
       "id": "42dd6add-48bc-4187-adf2-87ab9e1db05f",
       "name": "Cleanup Old Data",
       "credentials": {
@@ -282,10 +240,7 @@
       },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [
-        0,
-        1240
-      ],
+      "position": [0, 1240],
       "id": "a5e0498e-cfe7-4f56-9443-bfd0e17cd521",
       "name": "Weekdays 08:00"
     },
@@ -298,10 +253,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [
-        240,
-        1240
-      ],
+      "position": [240, 1240],
       "id": "702b7013-6143-449e-94f8-f2560077de1b",
       "name": "GET Dashboard Overview"
     },
@@ -314,10 +266,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [
-        480,
-        1240
-      ],
+      "position": [480, 1240],
       "id": "2ea8a8fd-b00b-4871-afc8-d5e0ef4fad33",
       "name": "GET AI Daily Summary"
     },
@@ -327,10 +276,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        720,
-        1240
-      ],
+      "position": [720, 1240],
       "id": "d22fb4be-c884-456a-aa7b-c9ba38d8f538",
       "name": "Prepare Cache SQL"
     },
@@ -342,10 +288,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [
-        960,
-        1240
-      ],
+      "position": [960, 1240],
       "id": "d49753f8-2e88-48bb-aaef-17f7865b37d9",
       "name": "Cache AI Insights",
       "credentials": {
@@ -368,10 +311,7 @@
       },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [
-        20,
-        1540
-      ],
+      "position": [20, 1540],
       "id": "6099b792-5aa2-476f-9281-a1cbd9f656f8",
       "name": "Every 15 Min (Anomaly Check)"
     },
@@ -383,10 +323,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [
-        260,
-        1540
-      ],
+      "position": [260, 1540],
       "id": "2596fe3b-f3ba-4769-831f-01e223e2680b",
       "name": "Check Price Anomalies",
       "credentials": {
@@ -421,10 +358,7 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [
-        500,
-        1540
-      ],
+      "position": [500, 1540],
       "id": "4b2c5460-84bb-45a8-9afc-41350a9dc9fc",
       "name": "Anomaly Found?"
     },
@@ -434,10 +368,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        740,
-        1500
-      ],
+      "position": [740, 1500],
       "id": "743d7730-f7c2-450a-b53f-ebd2e021e021",
       "name": "Log / Alert Anomaly"
     },
@@ -449,10 +380,7 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [
-        980,
-        1500
-      ],
+      "position": [980, 1500],
       "id": "d0f93bbe-4fc3-402e-9f7c-c2379042f0ab",
       "name": "Save Anomaly to DB",
       "credentials": {
@@ -468,10 +396,7 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        740,
-        1700
-      ],
+      "position": [740, 1700],
       "id": "520141b2-10b4-4470-99fe-c8fb3a7c1250",
       "name": "No Anomaly – Skip"
     }
