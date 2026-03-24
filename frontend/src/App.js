@@ -420,13 +420,11 @@ function BinancePanel({ trend, symbol, setSymbol }) {
   );
 }
 
-// OpenWeather panel — weather data visualization
+// OpenMeteo panel — weather data visualization
 function WeatherPanel({ weather }) {
   if (!weather)
     return (
-      <div style={S.loader}>
-        NO WEATHER DATA — configure OPENWEATHER_API_KEY in n8n
-      </div>
+      <div style={S.loader}>NO WEATHER DATA — configure OpenMeteo in n8n</div>
     );
 
   const temp = parseFloat(weather.temperature);
@@ -641,18 +639,16 @@ function WeatherPanel({ weather }) {
           letterSpacing: "1px",
         }}
       >
-        ⟳ Updated via OpenWeatherMap · Warsaw monitoring station
+        ⟳ Updated via OpenMeteo · Warsaw monitoring station
       </div>
     </div>
   );
 }
 
-// NewsAPI panel — news feed as data visualization
+// BBC News panel — news feed as data visualization
 function NewsPanel({ news }) {
   if (!news || news.length === 0)
-    return (
-      <div style={S.loader}>NO NEWS — configure NEWSAPI_KEY in n8n WF2</div>
-    );
+    return <div style={S.loader}>NO NEWS — configure BBC News in n8n</div>;
 
   // Assign a simple sentiment color based on keywords in title
   const getSentimentFromTitle = (title) => {
@@ -778,8 +774,8 @@ function SourceSwitcherCard({ activeSource, setActiveSource }) {
       color: "#e6b450",
       desc: "Crypto prices",
     },
-    { id: "weather", label: "WEATHER", color: "#58a6ff", desc: "OpenWeather" },
-    { id: "news", label: "NEWS", color: "#3fb950", desc: "NewsAPI" },
+    { id: "weather", label: "WEATHER", color: "#58a6ff", desc: "OpenMeteo" },
+    { id: "news", label: "NEWS", color: "#3fb950", desc: "BBC News" },
   ];
   const active = sources.find((s) => s.id === activeSource);
 
@@ -892,11 +888,11 @@ export default function App() {
     binance: { title: `${symbol}/USD · 24H CHART`, sub: "Binance Public API" },
     weather: {
       title: "WEATHER · WARSAW MONITORING",
-      sub: "OpenWeatherMap API",
+      sub: "OpenMeteo",
     },
     news: {
       title: "MARKET NEWS FEED · AUTO SENTIMENT",
-      sub: "NewsAPI Business Headlines",
+      sub: "BBC News",
     },
   };
   const meta = panelMeta[activeSource];
