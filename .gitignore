@@ -47,3 +47,5 @@ Thumbs.db
 # Logi kontenerów, jeśli są zapisywane do plików w projekcie
 *.log
 *.md
+__pycache__/
+*.pyc

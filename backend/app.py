@@ -1,3 +1,5 @@
+# backend/app.py
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -9,6 +11,9 @@ from database import execute_query
 from analytics import calculate_crypto_kpis, calculate_stock_kpis
 from ai_insights import generate_daily_summary, analyze_trend
 from scheduler import run_scheduler
+from data_quality import (
+    run_data_quality_checks,
+)  # Importuj funkcję do sprawdzania jakości danych
 
 
 @asynccontextmanager
@@ -38,9 +43,43 @@ _trend_cache: dict[str, Tuple[Any, datetime]] = {}
 TREND_CACHE_TTL = timedelta(minutes=30)
 
 
+@app.on_event("startup")
+async def startup_event():
+    # Przykładowe dane do testowania
+    crypto_data = {
+        "symbol": "BTC",
+        "price_usd": 50000,
+        "volume_24h": 1000000,
+        "price_change_24h": 2.5,
+    }
+
+    weather_data = {
+        "city": "Warsaw",
+        "temperature": 20.5,
+        "humidity": 60,
+        "weather_condition": "sunny",
+    }
+
+    news_data = {
+        "title": "Bitcoin Price Surges",
+        "description": "Bitcoin price has surged by 10% in the last 24 hours.",
+        "source": "BBC Business",
+        "url": "https://www.bbc.com/news/business-12345678",
+        "published_at": "2026-03-24T12:00:00Z",
+    }
+
+    run_data_quality_checks("crypto_prices", crypto_data)
+    run_data_quality_checks("weather_data", weather_data)
+    run_data_quality_checks("news_articles", news_data)
+
+
 @app.get("/")
 async def root():
-    return {"status": "AI Dashboard API running", "version": "1.0.0", "source": "Binance API"}
+    return {
+        "status": "AI Dashboard API running",
+        "version": "1.0.0",
+        "source": "Binance API",
+    }
 
 
 @app.get("/api/dashboard/overview")
@@ -52,15 +91,21 @@ async def get_dashboard_overview():
             """
             SELECT title, description, source, published_at
             FROM news_articles ORDER BY published_at DESC LIMIT 10
-        """
+            """
         )
         weather = execute_query(
             """
             SELECT city, temperature, humidity, weather_condition
             FROM weather_data ORDER BY timestamp DESC LIMIT 1
-        """
+            """
         )
-        return {"crypto": crypto_kpis, "stocks": stock_kpis, "news": news, "weather": weather[0] if weather else None, "timestamp": str(datetime.now())}
+        return {
+            "crypto": crypto_kpis,
+            "stocks": stock_kpis,
+            "news": news,
+            "weather": weather[0] if weather else None,
+            "timestamp": str(datetime.now()),
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -69,13 +114,20 @@ async def get_dashboard_overview():
 async def get_ai_daily_summary():
     try:
         # Return from cache if still fresh
-        if _summary_cache["data"] is not None and _summary_cache["cached_at"] is not None:
+        if (
+            _summary_cache["data"] is not None
+            and _summary_cache["cached_at"] is not None
+        ):
             if datetime.now() - _summary_cache["cached_at"] < SUMMARY_CACHE_TTL:
                 return _summary_cache["data"]
 
         # Cache miss — fetch fresh data and call Groq
-        weather_data = execute_query("SELECT temperature, humidity FROM weather_data ORDER BY timestamp DESC LIMIT 1")
-        news_count_data = execute_query("SELECT COUNT(*) as count FROM news_articles WHERE DATE(published_at) = CURRENT_DATE")
+        weather_data = execute_query(
+            "SELECT temperature, humidity FROM weather_data ORDER BY timestamp DESC LIMIT 1"
+        )
+        news_count_data = execute_query(
+            "SELECT COUNT(*) as count FROM news_articles WHERE DATE(published_at) = CURRENT_DATE"
+        )
         metrics = {
             "crypto_data": calculate_crypto_kpis().get("prices", []),
             "stock_data": calculate_stock_kpis().get("daily_changes", []),

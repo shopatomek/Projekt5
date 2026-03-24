@@ -1,7 +1,12 @@
+# backend/scheduler.py
+
 import asyncio
 import httpx
 from datetime import datetime
 from database import execute_query
+from data_quality import (
+    run_data_quality_checks,
+)  # Importuj funkcję do sprawdzania jakości danych
 
 BINANCE_URL = "https://api.binance.com/api/v3/ticker/24hr"
 
@@ -27,12 +32,33 @@ async def fetch_and_store_crypto():
         execute_query(
             f"""
             INSERT INTO crypto_prices (symbol, price_usd, market_cap, volume_24h, price_change_24h)
-            VALUES {','.join(rows)}
+            VALUES {",".join(rows)}
             ON CONFLICT DO NOTHING
         """
         )
-        execute_query("DELETE FROM crypto_prices WHERE timestamp < NOW() - INTERVAL '30 days'")
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Binance: zapisano {len(rows)} rekordów")
+        execute_query(
+            "DELETE FROM crypto_prices WHERE timestamp < NOW() - INTERVAL '30 days'"
+        )
+
+        # Wywołaj funkcję do sprawdzania jakości danych
+        for row in rows:
+            symbol, price_usd, _, volume_24h, price_change_24h = row[1:-1].split(",")
+            price_usd = float(price_usd)
+            volume_24h = int(volume_24h)
+            price_change_24h = float(price_change_24h)
+            run_data_quality_checks(
+                "crypto_prices",
+                {
+                    "symbol": symbol.strip()[1:-1],
+                    "price_usd": price_usd,
+                    "volume_24h": volume_24h,
+                    "price_change_24h": price_change_24h,
+                },
+            )
+
+        print(
+            f"[{datetime.now().strftime('%H:%M:%S')}] Binance: zapisano {len(rows)} rekordów"
+        )
         return {"status": "ok", "count": len(rows)}
     except Exception as e:
         print(f"Błąd fetch_and_store_crypto: {e}")
