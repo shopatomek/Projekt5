@@ -3,7 +3,7 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from psycopg2 import sql
+
 
 # Pobieranie danych połączenia z .env
 DB_USER = os.getenv("POSTGRES_USER")
