@@ -160,14 +160,43 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-# -----------------------------------------------------------------
-# Opcjonalnie: tryb developerski z hot-reload (więcej RAM)
-# Aby użyć: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
-# -----------------------------------------------------------------
-
+  # -----------------------------------------------------------------
+  # Opcjonalnie: tryb developerski z hot-reload (więcej RAM)
+  # Aby użyć: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+  # -----------------------------------------------------------------
+  # =================================================================
+  # METABASE - Business Intelligence Dashboard
+  # =================================================================
+  metabase:
+    image: metabase/metabase:v0.52.0
+    container_name: dashboard-metabase
+    environment:
+      - TZ=Europe/Warsaw
+      - JAVA_OPTS=-Xmx256M
+      - MB_DB_TYPE=postgres
+      - MB_DB_DBNAME=${POSTGRES_DB}
+      - MB_DB_HOST=postgres
+      - MB_DB_PORT=5432
+      - MB_DB_USER=${POSTGRES_USER}
+      - MB_DB_PASS=${POSTGRES_PASSWORD}
+    ports:
+      - "3001:3000"
+    volumes:
+      - metabase_data:/metabase-data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+        reservations:
+          memory: 256M
+    restart: unless-stopped
 volumes:
   postgres_data:
   n8n_data:
+  metabase_data:
 
     # =================================================================
     # SZACUNKOWE ZUŻYCIE RAMU PO ZMIANACH:
