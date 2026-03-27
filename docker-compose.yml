@@ -12,6 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/init-metabase.sql:/docker-entrypoint-initdb.d/init-metabase.sql
     ports:
       - "5432:5432"
     # Kluczowe parametry PostgreSQL dla małego środowiska
@@ -168,17 +169,12 @@ services:
   # METABASE - Business Intelligence Dashboard
   # =================================================================
   metabase:
-    image: metabase/metabase:v0.52.0
+    image: metabase/metabase:v0.59.4.3
     container_name: dashboard-metabase
     environment:
       - TZ=Europe/Warsaw
       - JAVA_OPTS=-Xmx256M
-      - MB_DB_TYPE=postgres
-      - MB_DB_DBNAME=${POSTGRES_DB}
-      - MB_DB_HOST=postgres
-      - MB_DB_PORT=5432
-      - MB_DB_USER=${POSTGRES_USER}
-      - MB_DB_PASS=${POSTGRES_PASSWORD}
+      - MB_DB_CONNECTION_URI=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?currentSchema=metabase
     ports:
       - "3001:3000"
     volumes:
@@ -193,17 +189,8 @@ services:
         reservations:
           memory: 256M
     restart: unless-stopped
+
 volumes:
   postgres_data:
   n8n_data:
   metabase_data:
-
-    # =================================================================
-    # SZACUNKOWE ZUŻYCIE RAMU PO ZMIANACH:
-    #   postgres:  128-256 MB  (było: ~200MB)
-    #   n8n:       300-500 MB  (było: ~600MB+)
-    #   backend:   150-250 MB  (było: ~300MB)
-    #   frontend:  30-60  MB   (było: ~2000-4000MB ← GŁÓWNY WINOWAJCA)
-    #   Docker Desktop Win11:  ~1-2 GB (overhead systemu)
-    #   ŁĄCZNIE:   ~2-3 GB     (było: ~10-16 GB)
-    # =================================================================
