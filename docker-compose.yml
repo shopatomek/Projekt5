@@ -22,7 +22,7 @@ services:
     command: >
       postgres
         -c shared_buffers=64MB
-        -c max_connections=20
+        -c max_connections=50
         -c work_mem=4MB
         -c maintenance_work_mem=32MB
         -c effective_cache_size=128MB
@@ -130,11 +130,12 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.prod # nowy plik - patrz frontend/Dockerfile.prod
+      dockerfile: Dockerfile.prod
+      args:
+        - REACT_APP_API_URL=http://localhost:8000
     container_name: dashboard-frontend
     environment:
       - TZ=Europe/Warsaw
-      - REACT_APP_API_URL=http://localhost:8000
     ports:
       - "3000:80" # nginx słucha na :80 wewnątrz kontenera
     depends_on:
@@ -155,26 +156,30 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
     ports:
       - "5050:80"
-    mem_limit: 256M
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
 
   # -----------------------------------------------------------------
-  # Opcjonalnie: tryb developerski z hot-reload (więcej RAM)
-  # Aby użyć: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+  # Metabase
   # -----------------------------------------------------------------
-  # =================================================================
-  # METABASE - Business Intelligence Dashboard
-  # =================================================================
   metabase:
     image: metabase/metabase:v0.59.4.3
     container_name: dashboard-metabase
     environment:
       - TZ=Europe/Warsaw
       - JAVA_OPTS=-Xmx256M
-      - MB_DB_CONNECTION_URI=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?currentSchema=metabase
+      - MB_DB_TYPE=postgres
+      - MB_DB_HOST=postgres
+      - MB_DB_PORT=5432
+      - MB_DB_DBNAME=metabase_app
+      - MB_DB_USER=${POSTGRES_USER}
+      - MB_DB_PASS=${POSTGRES_PASSWORD}
     ports:
       - "3001:3000"
     volumes:

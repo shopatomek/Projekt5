@@ -1,4 +1,4 @@
--- Tabela dla danych kryptowalut
+
 CREATE TABLE crypto_prices (
     id SERIAL PRIMARY KEY,
     symbol VARCHAR(10) NOT NULL,
