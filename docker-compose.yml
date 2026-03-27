@@ -12,13 +12,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./database/init-metabase.sql:/docker-entrypoint-initdb.d/init-metabase.sql
+      - ./database/init-metabase.sh:/docker-entrypoint-initdb.d/02-init-metabase.sh
     ports:
       - "5432:5432"
-    # Kluczowe parametry PostgreSQL dla małego środowiska
-    # shared_buffers: domyślnie 128MB → 64MB (wystarczy dla dev)
-    # max_connections: domyślnie 100 → 20 (backend + n8n nie potrzebują więcej)
-    # work_mem: pamięć na operacje sortowania per-query
     command: >
       postgres
         -c shared_buffers=64MB
@@ -42,11 +38,6 @@ services:
         reservations:
           memory: 128M
     restart: unless-stopped
-
-  # n8n - Workflow Automation
-  # Przypięta wersja (nie "latest") = stabilność + brak niespodzianek
-  # NODE_OPTIONS cap = twardy limit sterty Node.js
-  # EXECUTIONS_DATA_PRUNE = nie trzyma logów egzekucji w nieskończoność
   n8n:
     image: n8nio/n8n:1.34.2
     container_name: dashboard-n8n
@@ -86,11 +77,6 @@ services:
           memory: 256M
     restart: unless-stopped
 
-  # -----------------------------------------------------------------
-  # Python FastAPI Backend
-  # Usunięty --reload (zużywa RAM na watchfiles, zbędny w demo)
-  # W trybie DEV: zmień command na: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
-  # -----------------------------------------------------------------
   backend:
     build: ./backend
     container_name: dashboard-backend
@@ -110,8 +96,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    # --workers 1: jeden proces, wystarczy dla dev/demo
-    # Usuń tę linię i wróć do --reload tylko gdy aktywnie rozwijasz
     command: uvicorn app:app --host 0.0.0.0 --port 8000 --workers 1
     deploy:
       resources:
@@ -121,12 +105,6 @@ services:
           memory: 128M
     restart: unless-stopped
 
-  # -----------------------------------------------------------------
-  # React Frontend - multi-stage build → nginx:alpine
-  # NAJWIĘKSZA OSZCZĘDNOŚĆ RAMU: CRA dev server (~2-3GB) → nginx (~60MB)
-  # Patrz: frontend/Dockerfile.prod
-  # UWAGA: hot-reload nie działa w tym trybie - to tryb demo/produkcja
-  # -----------------------------------------------------------------
   frontend:
     build:
       context: ./frontend
