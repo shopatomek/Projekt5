@@ -53,13 +53,11 @@ services:
       - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
       - DB_POSTGRESDB_USER=${POSTGRES_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
-      # Zarządzanie pamięcią i logami
       - NODE_OPTIONS=--max-old-space-size=512
       - EXECUTIONS_DATA_PRUNE=true
-      - EXECUTIONS_DATA_MAX_AGE=72 # Trzymaj logi max 72h
+      - EXECUTIONS_DATA_MAX_AGE=72
       - EXECUTIONS_DATA_PRUNE_MAX_COUNT=500
       - N8N_RUNNERS_MAX_CONCURRENCY=2
-      # Wyłącz telemetrię (opcjonalnie)
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_VERSION_NOTIFICATIONS_ENABLED=false
     ports:
@@ -115,7 +113,7 @@ services:
     environment:
       - TZ=Europe/Warsaw
     ports:
-      - "3000:80" # nginx słucha na :80 wewnątrz kontenera
+      - "3000:80" # nginx port 80
     depends_on:
       - backend
     deploy:
@@ -143,9 +141,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # -----------------------------------------------------------------
-  # Metabase
-  # -----------------------------------------------------------------
   metabase:
     image: metabase/metabase:v0.59.4.3
     container_name: dashboard-metabase
