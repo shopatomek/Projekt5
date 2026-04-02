@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
 from datetime import datetime, timedelta
-from typing import Any, Tuple, List, Optional
+from typing import Any, Tuple, List
 from collections import Counter
 import os
 
