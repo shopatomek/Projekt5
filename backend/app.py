@@ -1,18 +1,39 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
 from datetime import datetime, timedelta
-from typing import Any, Tuple, List
+from typing import Any, Tuple, List, Optional
+from collections import Counter
+import os
 
 from database import execute_query
 from analytics import calculate_crypto_kpis, calculate_stock_kpis
-from ai_insights import generate_daily_summary, analyze_trend
+from ai_insights import generate_daily_summary, analyze_trend, analyze_sentiment, explain_anomaly
 from scheduler import run_scheduler
-from data_quality import (
-    run_data_quality_checks,
-)  # Importuj funkcję do sprawdzania jakości danych
+from data_quality.engine import engine
+from pydantic import BaseModel
 
+
+# =============================================================================
+# Modele Pydantic dla nowych endpointów
+# =============================================================================
+
+class SentimentRequest(BaseModel):
+    title: str
+    description: str = ""
+
+
+class AnomalyRequest(BaseModel):
+    symbol: str
+    price_usd: float
+    price_change_24h: float
+    detected_at: str = ""
+
+
+# =============================================================================
+# Lifespan i konfiguracja aplikacji
+# =============================================================================
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -39,31 +60,9 @@ _trend_cache: dict[str, Tuple[Any, datetime]] = {}
 TREND_CACHE_TTL = timedelta(minutes=30)
 
 
-@app.on_event("startup")
-async def startup_event():
-    crypto_data = {
-        "symbol": "BTC",
-        "price_usd": 50000,
-        "volume_24h": 1000000,
-        "price_change_24h": 2.5,
-    }
-    weather_data = {
-        "city": "Warsaw",
-        "temperature": 20.5,
-        "humidity": 60,
-        "weather_condition": "sunny",
-    }
-    news_data = {
-        "title": "Bitcoin Price Surges",
-        "description": "Bitcoin price has surged by 10% in the last 24 hours.",
-        "source": "BBC Business",
-        "url": "https://www.bbc.com/news/business-12345678",
-        "published_at": "2026-03-24T12:00:00Z",
-    }
-    run_data_quality_checks("crypto_prices", crypto_data)
-    run_data_quality_checks("weather_data", weather_data)
-    run_data_quality_checks("news_articles", news_data)
-
+# =============================================================================
+# Endpoint główny
+# =============================================================================
 
 @app.get("/")
 async def root():
@@ -74,6 +73,10 @@ async def root():
     }
 
 
+# =============================================================================
+# Pomocnicza funkcja do łączenia list
+# =============================================================================
+
 def safe_list_concat(*lists: List[Any] | None) -> List[Any]:
     """Bezpiecznie łączy listy, obsługując None."""
     result = []
@@ -82,6 +85,10 @@ def safe_list_concat(*lists: List[Any] | None) -> List[Any]:
             result.extend(lst if isinstance(lst, list) else [lst])
     return result
 
+
+# =============================================================================
+# Endpoint /api/dashboard/overview (poprawiony – używa engine.run)
+# =============================================================================
 
 @app.get("/api/dashboard/overview")
 async def get_dashboard_overview():
@@ -112,60 +119,56 @@ async def get_dashboard_overview():
             "SELECT title, description, source, url, published_at FROM news_articles ORDER BY published_at DESC LIMIT 1"
         )
 
-        # Sprawdź jakość danych z rzeczywistych rekordów
+        # Sprawdź jakość danych z rzeczywistych rekordów używając nowego silnika
         crypto_issues: List[str] = []
         if crypto_data:
             crypto_row = crypto_data[0]
-            crypto_issues = (
-                run_data_quality_checks(
-                    "crypto_prices",
-                    {
-                        "symbol": crypto_row["symbol"],
-                        "price_usd": crypto_row["price_usd"],
-                        "volume_24h": crypto_row["volume_24h"],
-                        "price_change_24h": crypto_row["price_change_24h"],
-                    },
-                )
-                or []
+            report, _ = engine.run(
+                "crypto_prices",
+                {
+                    "symbol": crypto_row["symbol"],
+                    "price_usd": crypto_row["price_usd"],
+                    "volume_24h": crypto_row["volume_24h"],
+                    "price_change_24h": crypto_row["price_change_24h"],
+                },
+                record_id=crypto_row["symbol"]
             )
+            crypto_issues = report.failed_checks
             print(f"[DEBUG] Crypto issues detected: {crypto_issues}")
 
         weather_issues: List[str] = []
         if weather_data:
             weather_row = weather_data[0]
-            weather_issues = (
-                run_data_quality_checks(
-                    "weather_data",
-                    {
-                        "city": weather_row["city"],
-                        "temperature": weather_row["temperature"],
-                        "humidity": weather_row["humidity"],
-                        "weather_condition": weather_row["weather_condition"],
-                    },
-                )
-                or []
+            report, _ = engine.run(
+                "weather_data",
+                {
+                    "city": weather_row["city"],
+                    "temperature": weather_row["temperature"],
+                    "humidity": weather_row["humidity"],
+                    "weather_condition": weather_row["weather_condition"],
+                },
+                record_id=weather_row["city"]
             )
+            weather_issues = report.failed_checks
             print(f"[DEBUG] Weather issues detected: {weather_issues}")
 
         news_issues: List[str] = []
         if news_data:
             news_row = news_data[0]
-            news_issues = (
-                run_data_quality_checks(
-                    "news_articles",
-                    {
-                        "title": news_row["title"],
-                        "description": news_row["description"],
-                        "source": news_row["source"],
-                        "url": news_row["url"],
-                        "published_at": news_row["published_at"],
-                    },
-                )
-                or []
+            report, _ = engine.run(
+                "news_articles",
+                {
+                    "title": news_row["title"],
+                    "description": news_row["description"],
+                    "source": news_row["source"],
+                    "url": news_row["url"],
+                    "published_at": news_row["published_at"],
+                },
+                record_id=news_row.get("title", "unknown")[:50]
             )
+            news_issues = report.failed_checks
             print(f"[DEBUG] News issues detected: {news_issues}")
 
-        # Połączenie wszystkich błędów w jedną listę (bezpieczne)
         all_issues = safe_list_concat(crypto_issues, weather_issues, news_issues)
 
         return {
@@ -174,11 +177,15 @@ async def get_dashboard_overview():
             "news": news,
             "weather": weather[0] if weather else None,
             "timestamp": str(datetime.now()),
-            "data_quality_issues": all_issues,  # Puste, jeśli nie ma błędów
+            "data_quality_issues": all_issues,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# =============================================================================
+# Endpoint /api/ai/daily-summary (poprawiony – używa engine.run)
+# =============================================================================
 
 @app.get("/api/ai/daily-summary")
 async def get_ai_daily_summary():
@@ -208,8 +215,8 @@ async def get_ai_daily_summary():
         _summary_cache["data"] = summary
         _summary_cache["cached_at"] = datetime.now()
 
-        # Sprawdź jakość danych z rzeczywistych rekordów
-        weather_data = execute_query(
+        # Sprawdź jakość danych z rzeczywistych rekordów używając nowego silnika
+        weather_data_full = execute_query(
             "SELECT city, temperature, humidity, weather_condition FROM weather_data ORDER BY timestamp DESC LIMIT 1"
         )
         news_data = execute_query(
@@ -217,38 +224,36 @@ async def get_ai_daily_summary():
         )
 
         weather_issues: List[str] = []
-        if weather_data:
-            weather_row = weather_data[0]
-            weather_issues = (
-                run_data_quality_checks(
-                    "weather_data",
-                    {
-                        "city": weather_row["city"],
-                        "temperature": weather_row["temperature"],
-                        "humidity": weather_row["humidity"],
-                        "weather_condition": weather_row["weather_condition"],
-                    },
-                )
-                or []
+        if weather_data_full:
+            weather_row = weather_data_full[0]
+            report, _ = engine.run(
+                "weather_data",
+                {
+                    "city": weather_row["city"],
+                    "temperature": weather_row["temperature"],
+                    "humidity": weather_row["humidity"],
+                    "weather_condition": weather_row["weather_condition"],
+                },
+                record_id=weather_row["city"]
             )
+            weather_issues = report.failed_checks
             print(f"[DEBUG] Weather issues detected: {weather_issues}")
 
         news_issues: List[str] = []
         if news_data:
             news_row = news_data[0]
-            news_issues = (
-                run_data_quality_checks(
-                    "news_articles",
-                    {
-                        "title": news_row["title"],
-                        "description": news_row["description"],
-                        "source": news_row["source"],
-                        "url": news_row["url"],
-                        "published_at": news_row["published_at"],
-                    },
-                )
-                or []
+            report, _ = engine.run(
+                "news_articles",
+                {
+                    "title": news_row["title"],
+                    "description": news_row["description"],
+                    "source": news_row["source"],
+                    "url": news_row["url"],
+                    "published_at": news_row["published_at"],
+                },
+                record_id=news_row.get("title", "unknown")[:50]
             )
+            news_issues = report.failed_checks
             print(f"[DEBUG] News issues detected: {news_issues}")
 
         all_issues = safe_list_concat(weather_issues, news_issues)
@@ -260,6 +265,10 @@ async def get_ai_daily_summary():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# =============================================================================
+# Endpoint /api/charts/crypto-trend (poprawiony – używa engine.run)
+# =============================================================================
 
 @app.get("/api/charts/crypto-trend")
 async def get_crypto_trend(symbol: str = "BTC", days: int = 7):
@@ -278,14 +287,14 @@ async def get_crypto_trend(symbol: str = "BTC", days: int = 7):
         AND timestamp >= NOW() - INTERVAL '{days} days'
         ORDER BY timestamp
         """
-        data = execute_query(query, {"symbol": sym})
+        data = execute_query(query, {"symbol": sym}) or [] 
         trend_analysis = analyze_trend(data, f"{sym} price")
 
         result = {"symbol": symbol, "data": data, "ai_analysis": trend_analysis}
 
         _trend_cache[sym] = (result, datetime.now())
 
-        # Sprawdź jakość danych z rzeczywistych rekordów
+        # Sprawdź jakość danych z rzeczywistych rekordów używając nowego silnika
         crypto_data = execute_query(
             "SELECT symbol, price_usd, volume_24h, price_change_24h FROM crypto_prices WHERE symbol = :symbol ORDER BY timestamp DESC LIMIT 1",
             {"symbol": sym},
@@ -293,18 +302,17 @@ async def get_crypto_trend(symbol: str = "BTC", days: int = 7):
         crypto_issues: List[str] = []
         if crypto_data:
             crypto_row = crypto_data[0]
-            crypto_issues = (
-                run_data_quality_checks(
-                    "crypto_prices",
-                    {
-                        "symbol": crypto_row["symbol"],
-                        "price_usd": crypto_row["price_usd"],
-                        "volume_24h": crypto_row["volume_24h"],
-                        "price_change_24h": crypto_row["price_change_24h"],
-                    },
-                )
-                or []
+            report, _ = engine.run(
+                "crypto_prices",
+                {
+                    "symbol": crypto_row["symbol"],
+                    "price_usd": crypto_row["price_usd"],
+                    "volume_24h": crypto_row["volume_24h"],
+                    "price_change_24h": crypto_row["price_change_24h"],
+                },
+                record_id=crypto_row["symbol"]
             )
+            crypto_issues = report.failed_checks
             print(f"[DEBUG] Crypto issues detected: {crypto_issues}")
 
         return {
@@ -315,7 +323,151 @@ async def get_crypto_trend(symbol: str = "BTC", days: int = 7):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# =============================================================================
+# NOWE ENDPOINTY (z app_new_endpoints.py)
+# =============================================================================
+
+@app.post("/api/ai/sentiment")
+async def get_sentiment(req: SentimentRequest):
+    """
+    Wywoływany przez n8n WF2 dla każdego artykułu BBC RSS.
+    Zwraca score od -1.0 (negatywny) do +1.0 (pozytywny).
+    """
+    score = analyze_sentiment(req.title, req.description)
+    return {"score": score}
+
+
+@app.post("/api/ai/explain-anomaly")
+async def get_anomaly_explanation(req: AnomalyRequest):
+    """
+    Wywoływany przez n8n WF3B po wykryciu anomalii cenowej.
+    Zwraca wyjaśnienie anomalii wygenerowane przez Groq.
+    """
+    explanation = explain_anomaly({
+        "symbol": req.symbol,
+        "price_usd": req.price_usd,
+        "price_change_24h": req.price_change_24h,
+        "detected_at": req.detected_at,
+    })
+    return {"explanation": explanation}
+
+
+@app.get("/api/dq/report")
+async def get_dq_report(hours: int = 24):
+    """
+    Raport Data Quality z ostatnich N godzin.
+    Używany przez Metabase i frontend do pokazania stanu jakości danych.
+    """
+    failures = execute_query(
+        f"""
+        SELECT
+            content->>'table' as table_name,
+            content->>'record_id' as record_id,
+            content->'failed_checks' as failed_checks,
+            content->>'auto_repaired' as auto_repaired,
+            generated_at
+        FROM ai_insights
+        WHERE insight_type = 'dq_failure'
+          AND generated_at >= NOW() - INTERVAL '{hours} hours'
+        ORDER BY generated_at DESC
+        LIMIT 100
+        """
+    ) or []
+
+    anomalies = execute_query(
+        f"""
+        SELECT
+            content->>'message' as message,
+            content->'affected_symbols' as symbols,
+            generated_at
+        FROM ai_insights
+        WHERE insight_type = 'price_anomaly'
+          AND generated_at >= NOW() - INTERVAL '{hours} hours'
+        ORDER BY generated_at DESC
+        LIMIT 20
+        """
+    ) or []
+
+    by_table = {}
+    failure_types = []
+    for f in failures:
+        tbl = f.get("table_name", "unknown")
+        by_table[tbl] = by_table.get(tbl, 0) + 1
+        checks = f.get("failed_checks")
+        if isinstance(checks, list):
+            failure_types.extend(checks)
+
+    most_common = Counter(failure_types).most_common(1)[0][0] if failure_types else None
+
+    return {
+        "period_hours": hours,
+        "summary": {
+            "total_dq_events": len(failures),
+            "tables_with_issues": list(by_table.keys()),
+            "most_common_failure": most_common,
+            "total_anomalies": len(anomalies),
+        },
+        "by_table": {k: {"failures": v} for k, v in by_table.items()},
+        "recent_failures": failures[:10],
+        "recent_anomalies": anomalies[:5],
+        "last_updated": datetime.now().isoformat(),
+    }
+
+
+@app.get("/api/news/search")
+async def search_news(q: str = Query(..., min_length=2), limit: int = 5):
+    """
+    Full-text search po artykułach BBC + AI summary z Groq.
+    Przykład: GET /api/news/search?q=bitcoin+inflation
+    """
+    from groq import Groq
+    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+    articles = execute_query(
+        """
+        SELECT title, description, source, url, published_at, sentiment_score,
+               ts_rank(
+                   to_tsvector('english', title || ' ' || COALESCE(description, '')),
+                   plainto_tsquery('english', :q)
+               ) as relevance
+        FROM news_articles
+        WHERE to_tsvector('english', title || ' ' || COALESCE(description, ''))
+              @@ plainto_tsquery('english', :q)
+        ORDER BY relevance DESC, published_at DESC
+        LIMIT :limit
+        """,
+        {"q": q, "limit": limit}
+    ) or []
+
+    if not articles:
+        return {"query": q, "articles": [], "ai_summary": "No relevant articles found."}
+
+    context = "\n".join([
+        f"- [{str(a['published_at'])[:10]}] {a['title']}: {str(a.get('description', ''))[:100]}"
+        for a in articles
+    ])
+
+    try:
+        resp = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content":
+                f"Based on these recent news articles:\n{context}\n\nAnswer in 2-3 sentences: {q}"}],
+            temperature=0.3,
+            max_tokens=200,
+        )
+        content = resp.choices[0].message.content
+        ai_summary = content.strip() if content else "No summary generated."
+    except Exception as e:
+        ai_summary = f"AI summary unavailable: {str(e)}"
+
+    return {
+        "query": q,
+        "articles_found": len(articles),
+        "articles": articles,
+        "ai_summary": ai_summary,
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8000)

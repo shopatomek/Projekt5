@@ -1,4 +1,5 @@
 # backend/ai_insights.py
+
 import os
 import json
 from groq import Groq
@@ -10,15 +11,13 @@ MODEL = "llama-3.3-70b-versatile"
 
 
 def generate_daily_summary(metrics: Dict) -> Dict:
+    
     prompt = f"""Jesteś ekspertem analityki biznesowej. Przeanalizuj dzisiejsze dane i wygeneruj raport:
 
 DANE Z DZIŚ ({datetime.now().strftime("%Y-%m-%d")}):
 
 Kryptowaluty:
 {json.dumps(metrics.get("crypto_data", []), indent=2)}
-
-Akcje:
-{json.dumps(metrics.get("stock_data", []), indent=2)}
 
 Liczba newsów: {metrics.get("news_count", 0)}
 
@@ -43,17 +42,15 @@ ODPOWIEDZ W FORMACIE JSON (tylko JSON, bez dodatkowego tekstu):
             temperature=0.7,
             max_tokens=1000,
         )
-        text = response.choices[0].message.content.strip()  # type: ignore
-
+        content = response.choices[0].message.content
+        text = content.strip() if content else ""
         if text.startswith("```"):
             text = text.split("```")[1]
             if text.startswith("json"):
                 text = text[4:]
-
         result = json.loads(text.strip())
         result["generated_at"] = datetime.now().isoformat()
         return result
-
     except Exception as e:
         print(f"Błąd generowania AI insights: {e}")
         return {
@@ -65,6 +62,7 @@ ODPOWIEDZ W FORMACIE JSON (tylko JSON, bez dodatkowego tekstu):
 
 
 def analyze_trend(data_points: List[Dict], metric_name: str) -> str:
+    """Bez zmian względem oryginału, ale z obsługą None."""
     if not data_points or len(data_points) < 2:
         return "Insufficient data for trend analysis"
 
@@ -87,12 +85,14 @@ Odpowiedź w 2-3 zdaniach, konkretnie i liczbowo."""
             temperature=0.3,
             max_tokens=200,
         )
-        return response.choices[0].message.content.strip()  # pyright: ignore[reportOptionalMemberAccess]
+        content = response.choices[0].message.content
+        return content.strip() if content else "No content returned."
     except Exception as e:
         return f"Trend analysis error: {str(e)}"
 
 
 def explain_anomaly(anomaly_data: Dict) -> str:
+    """Bez zmian względem oryginału, ale z obsługą None."""
     prompt = f"""Wykryto anomalię w danych:
 
 {json.dumps(anomaly_data, indent=2)}
@@ -109,6 +109,73 @@ Wyjaśnij krótko (2-3 zdania):
             temperature=0.3,
             max_tokens=200,
         )
-        return response.choices[0].message.content.strip()  # pyright: ignore[reportOptionalMemberAccess]
+        content = response.choices[0].message.content
+        return content.strip() if content else "No explanation received."
     except Exception as e:
         return f"Unable to explain anomaly: {str(e)}"
+
+
+def analyze_sentiment(title: str, description: str = "") -> float:
+    """Analizuje sentyment artykułu i zwraca liczbę od -1.0 do +1.0."""
+    text = f"{title}. {description}".strip() if description else title
+    text = text[:300]
+
+    prompt = f"""Rate the sentiment of this business news article on a scale from -1.0 to +1.0.
+-1.0 = very negative (crisis, crash, layoffs, losses)
+0.0 = neutral (routine report, announcement)
++1.0 = very positive (growth, profits, success, breakthrough)
+
+Article: "{text}"
+
+Respond with ONLY a single number between -1.0 and +1.0. No text, no explanation."""
+
+    raw = "0.0"  # ← DOMYŚLNA WARTOŚĆ PRZED BLOKIEM TRY
+
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
+            max_tokens=10,
+        )
+        content = response.choices[0].message.content
+        if content:
+            raw = content.strip()
+        score = float(raw)
+        return max(-1.0, min(1.0, score))
+    except (ValueError, TypeError):
+        print(f"[sentiment] Nie można sparsować wyniku: '{raw}' — używam 0.0")
+        return 0.0
+    except Exception as e:
+        print(f"[sentiment] Błąd Groq: {e}")
+        return 0.0
+    """Analizuje sentyment artykułu i zwraca liczbę od -1.0 do +1.0."""
+    text = f"{title}. {description}".strip() if description else title
+    text = text[:300]
+
+    prompt = f"""Rate the sentiment of this business news article on a scale from -1.0 to +1.0.
+-1.0 = very negative (crisis, crash, layoffs, losses)
+0.0 = neutral (routine report, announcement)
++1.0 = very positive (growth, profits, success, breakthrough)
+
+Article: "{text}"
+
+Respond with ONLY a single number between -1.0 and +1.0. No text, no explanation."""
+
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
+            max_tokens=10,
+        )
+        content = response.choices[0].message.content
+        raw = content.strip() if content else "0.0"
+        score = float(raw)
+        return max(-1.0, min(1.0, score))
+    except (ValueError, TypeError):
+        print(f"[sentiment] Nie można sparsować wyniku: '{raw}' — używam 0.0")
+        return 0.0
+    except Exception as e:
+        print(f"[sentiment] Błąd Groq: {e}")
+        return 0.0
