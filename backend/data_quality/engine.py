@@ -33,7 +33,6 @@ from .base import DataQualityCheck
 from .checks import (
     NotNullCheck,
     RangeCheck,
-    SentimentRangeCheck,
     UrlFormatCheck,
 )
 
@@ -71,7 +70,7 @@ CHECKS_BY_TABLE: Dict[str, List[DataQualityCheck]] = {
         NotNullCheck("source"),
         UrlFormatCheck("url"),
         NotNullCheck("published_at"),
-        SentimentRangeCheck(),   # nullable: NULL jest OK gdy Groq nie działał
+          
     ],
 }
 

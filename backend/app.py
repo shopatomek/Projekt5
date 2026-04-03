@@ -9,7 +9,7 @@ import os
 
 from database import execute_query
 from analytics import calculate_crypto_kpis, calculate_stock_kpis
-from ai_insights import generate_daily_summary, analyze_trend, analyze_sentiment, explain_anomaly
+from ai_insights import generate_daily_summary, analyze_trend, explain_anomaly
 from scheduler import run_scheduler
 from data_quality.engine import engine
 from pydantic import BaseModel
@@ -18,11 +18,6 @@ from pydantic import BaseModel
 # =============================================================================
 # Modele Pydantic dla nowych endpointów
 # =============================================================================
-
-class SentimentRequest(BaseModel):
-    title: str
-    description: str = ""
-
 
 class AnomalyRequest(BaseModel):
     symbol: str
@@ -326,16 +321,6 @@ async def get_crypto_trend(symbol: str = "BTC", days: int = 7):
 # =============================================================================
 # NOWE ENDPOINTY (z app_new_endpoints.py)
 # =============================================================================
-
-@app.post("/api/ai/sentiment")
-async def get_sentiment(req: SentimentRequest):
-    """
-    Wywoływany przez n8n WF2 dla każdego artykułu BBC RSS.
-    Zwraca score od -1.0 (negatywny) do +1.0 (pozytywny).
-    """
-    score = analyze_sentiment(req.title, req.description)
-    return {"score": score}
-
 
 @app.post("/api/ai/explain-anomaly")
 async def get_anomaly_explanation(req: AnomalyRequest):

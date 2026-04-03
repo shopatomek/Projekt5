@@ -115,8 +115,8 @@ Wyjaśnij krótko (2-3 zdania):
         return f"Unable to explain anomaly: {str(e)}"
 
 
-def analyze_sentiment(title: str, description: str = "") -> float:
     """Analizuje sentyment artykułu i zwraca liczbę od -1.0 do +1.0."""
+    print(f"[sentiment] Wywołano dla title: {title[:50]}")
     text = f"{title}. {description}".strip() if description else title
     text = text[:300]
 

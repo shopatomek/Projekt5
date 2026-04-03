@@ -169,36 +169,3 @@ class UrlFormatCheck(DataQualityCheck):
         return record
 
 
-class SentimentRangeCheck(DataQualityCheck):
-    """
-    Specjalizowany check dla sentiment_score.
-    Zakres: -1.0 (bardzo negatywny) do +1.0 (bardzo pozytywny).
-    Jeśli NULL → OK (Groq mógł nie działać podczas tego cyklu).
-    Jeśli wartość jest poza zakresem → przycinamy.
-    """
-
-    @property
-    def name(self) -> str:
-        return "SentimentRangeCheck:sentiment_score"
-
-    def validate(self, record: Dict[str, Any]) -> bool:
-        score = record.get("sentiment_score")
-        if score is None:
-            return True  # NULL jest akceptowalny
-        try:
-            return -1.0 <= float(score) <= 1.0
-        except (TypeError, ValueError):
-            return False
-
-    def fix(self, record: Dict[str, Any]) -> Dict[str, Any]:
-        score = record.get("sentiment_score")
-        if score is None:
-            return record
-        try:
-            fixed = max(-1.0, min(1.0, float(score)))
-            record = dict(record)
-            record["sentiment_score"] = fixed
-        except (TypeError, ValueError):
-            record = dict(record)
-            record["sentiment_score"] = None  # usuń wartość jeśli nie jest liczbą
-        return record
