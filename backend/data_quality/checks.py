@@ -9,8 +9,7 @@
 # - UrlFormatCheck("url") → sprawdza czy wygląda jak URL
 #
 # FIX(): Tam gdzie to możliwe, check próbuje naprawić dane.
-# Np. jeśli sentiment_score wychodzi poza zakres [-1, 1] — przycinamy do granic.
-# Jeśli cena jest 0 lub ujemna — nie da się naprawić, zwracamy rekord bez zmian.
+
 
 from typing import Any, Dict, Optional
 from .base import DataQualityCheck
@@ -61,8 +60,6 @@ class RangeCheck(DataQualityCheck):
         RangeCheck("humidity", min_val=0, max_val=100)
             → humidity musi być w [0, 100]
 
-        RangeCheck("sentiment_score", min_val=-1.0, max_val=1.0, nullable=True)
-            → jeśli None → OK, jeśli jest → musi być w [-1, 1]
     """
 
     def __init__(
@@ -107,11 +104,7 @@ class RangeCheck(DataQualityCheck):
         return True
 
     def fix(self, record: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Dla zakresu możemy przyciąć wartość do granic — ale tylko dla niektórych pól.
-        Np. sentiment_score=1.5 → przyciąć do 1.0 (ma sens)
-        Ale price_usd=-100 → nie da się naprawić sensownie, zostawiamy
-        """
+
         value = record.get(self.field)
         if value is None:
             return record
@@ -127,10 +120,8 @@ class RangeCheck(DataQualityCheck):
         if self.min_val is not None and num < self.min_val:
             fixed = self.min_val
 
-        # Naprawiamy tylko jeśli to nie zmienia sensu biznesowego drastycznie
-        # sentiment_score i humidity mają ograniczony zakres → naprawa OK
-        # price_usd i price_change → nie naprawiamy (wartość byłaby bez sensu)
-        REPAIRABLE_FIELDS = {"sentiment_score", "humidity"}
+       
+        REPAIRABLE_FIELDS = {"humidity"}
         if self.field in REPAIRABLE_FIELDS and fixed != num:
             record = dict(record)  # kopia żeby nie mutować oryginału
             record[self.field] = fixed
@@ -165,7 +156,6 @@ class UrlFormatCheck(DataQualityCheck):
         return value.strip().startswith(("http://", "https://"))
 
     def fix(self, record: Dict[str, Any]) -> Dict[str, Any]:
-        # URL-a nie naprawiamy automatycznie — nie wiadomo jaki powinien być
         return record
 
 
