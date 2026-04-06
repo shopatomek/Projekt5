@@ -26,7 +26,7 @@ Pogoda: {json.dumps(metrics.get("weather", {}), indent=2)}
 WYGENERUJ:
 1. Krótkie podsumowanie dnia (2-3 zdania) - ogólny ton rynku
 2. Top 3 najważniejsze spostrzeżenia (konkretne liczby i trendy)
-3. 2-3 rekomendacje działań dla biznesu (nie tylko bierz pod uwagi pogody, ale tylko ogolne trendy rynkowe i kryptowaluty)
+3. 2-3 rekomendacje działań dla biznesu (nie bierz pod uwagi pogody, ale tylko ogolne trendy rynkowe, newsy o ile mogą mieć wpływ na sytuacje rynkowe i oraz trendy kryptowaluty)
 
 ODPOWIEDZ W FORMACIE JSON (tylko JSON, bez dodatkowego tekstu):
 {{
