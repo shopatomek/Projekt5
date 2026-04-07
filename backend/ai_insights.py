@@ -92,23 +92,40 @@ Odpowiedź w 2-3 zdaniach, konkretnie i liczbowo."""
 
 
 def explain_anomaly(anomaly_data: Dict) -> str:
-    prompt = f"""Wykryto anomalię w danych:
+    """
+    Wyjaśnia anomalię cenową kryptowaluty.
+    """
+    symbol = anomaly_data.get('symbol', 'nieznana')
+    price_usd = anomaly_data.get('price_usd', 0)
+    price_change = anomaly_data.get('price_change_24h', 0)
+    
+    # Określ kierunek zmiany
+    direction = "wzrost" if price_change > 0 else "spadek"
+    abs_change = abs(price_change)
+    
+    prompt = f"""Jesteś ekspertem ds. kryptowalut i analizy rynku. Wyjaśnij krótko (2-3 zdania) poniższą anomalię.
 
-{json.dumps(anomaly_data, indent=2)}
+Dane:
+- Kryptowaluta: {symbol}
+- Aktualna cena: ${price_usd:.2f} USD
+- Zmiana ceny w ciągu 24h: {price_change:.2f}% ({direction} o {abs_change:.2f}%)
 
-Wyjaśnij krótko (2-3 zdania):
-1. Co mogło spowodować tę anomalię?
-2. Czy to powód do niepokoju?
-3. Jakie są możliwe następstwa?"""
+Twoja odpowiedź powinna zawierać:
+1. POTENCJALNĄ PRZYCZYNĘ: Jaka rzeczywista sytuacja rynkowa (np. newsy, wydarzenia, sentyment inwestorów) mogła spowodować taki {direction}?
+2. CZY TO NIEBEZPIECZNE? Krótka ocena ryzyka dla inwestorów.
+3. MOŻLIWE NASTĘPSTWA: Co może się wydarzyć dalej?
+
+Odpowiedz w 2-3 zdaniach, konkretnie i merytorycznie. UNIKAJ ogólników typu "błąd w systemie" lub "awaria serwera" – zakładamy, że dane są poprawne."""
 
     try:
         response = client.chat.completions.create(
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=200,
+            temperature=0.5,  # trochę wyższa temperatura dla bardziej kreatywnych wyjaśnień
+            max_tokens=250,
         )
         content = response.choices[0].message.content
-        return content.strip() if content else "No explanation received."
+        return content.strip() if content else "Nie udało się wygenerować wyjaśnienia."
     except Exception as e:
-        return f"Unable to explain anomaly: {str(e)}"
+        print(f"Błąd explain_anomaly: {e}")
+        return f"Nie udało się wygenerować wyjaśnienia: {str(e)}"
