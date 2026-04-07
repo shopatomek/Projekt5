@@ -154,3 +154,23 @@ GROUP BY DATE(cp.timestamp AT TIME ZONE 'Europe/Warsaw')
 ORDER BY date DESC;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_mart_market_daily_date ON mart_market_daily(date);
+
+-- =============================================================================
+-- VIEW: v_dq_summary - Data Quality summary for Metabase
+-- =============================================================================
+
+CREATE OR REPLACE VIEW v_dq_summary AS
+SELECT
+    DATE(generated_at AT TIME ZONE 'Europe/Warsaw') AS date,
+    content->>'table' AS table_name,
+    COUNT(*) AS failure_count,
+    SUM(CASE WHEN (content->>'auto_repaired')::boolean = true THEN 1 ELSE 0 END) AS auto_repaired_count,
+    content->'failed_checks'->>0 AS primary_failure_type,
+    MAX(generated_at) AS last_seen
+FROM ai_insights
+WHERE insight_type = 'dq_failure'
+GROUP BY
+    DATE(generated_at AT TIME ZONE 'Europe/Warsaw'),
+    content->>'table',
+    content->'failed_checks'->>0
+ORDER BY date DESC, failure_count DESC;
