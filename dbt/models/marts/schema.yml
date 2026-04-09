@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: mart_market_daily
+    description: "Dzienne agregacje rynku kryptowalut, newsów i pogody"
+    columns:
+      - name: date
+        description: "Data w strefie Warszawa"
+        tests:
+          - unique
+          - not_null
+      - name: btc_avg_price
+        description: "Średnia cena BTC w USD"
+        # tests:
+        #   - not_null
+      - name: eth_avg_price
+        description: "Średnia cena ETH w USD"
+      - name: news_count
+        description: "Liczba artykułów danego dnia"
+        tests:
+          - not_null
+
+  - name: mart_dq_failures
+    description: "Błędy jakości danych z ai_insights"
+    columns:
+      - name: date
+        description: "Data wystąpienia błędu"
+      - name: table_name
+        description: "Tabela w której wystąpił błąd"
+      - name: failed_checks
+        description: "Lista reguł które nie przeszły walidacji"

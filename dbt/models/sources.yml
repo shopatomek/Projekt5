@@ -1,0 +1,44 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Surowe dane z Binance, n8n i backendu"
+    schema: public
+    tables:
+      - name: crypto_prices
+        description: "Ceny kryptowalut z Binance (co 5 min)"
+        loaded_at_field: timestamp
+        freshness:
+          warn_after: { count: 10, period: minute }
+          error_after: { count: 20, period: minute }
+        columns:
+          - name: symbol
+            description: "Symbol kryptowaluty (BTC, ETH...)"
+          - name: price_usd
+            description: "Cena w USD"
+          - name: timestamp
+            description: "Timestamp zapisu"
+
+      - name: news_articles
+        description: "Artykuły z BBC Business RSS"
+        columns:
+          - name: title
+            description: "Tytuł artykułu"
+          - name: published_at
+            description: "Data publikacji"
+
+      - name: weather_data
+        description: "Dane pogodowe z OpenMeteo (Warszawa)"
+        columns:
+          - name: city
+            description: "Miasto"
+          - name: temperature
+            description: "Temperatura w °C"
+
+      - name: ai_insights
+        description: "Wpisy z AI (podsumowania, anomalie, DQ failures)"
+        columns:
+          - name: insight_type
+            description: "Typ: daily_summary, price_anomaly, dq_failure"
+          - name: content
+            description: "JSON z danymi insightu"

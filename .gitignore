@@ -49,3 +49,10 @@ Thumbs.db
 *.md
 __pycache__/
 *.pyc
+
+# dbt generated files
+target/
+dbt_packages/
+logs/dbt/.user.yml
+dbt/.user.yml
+dbt/logs/
