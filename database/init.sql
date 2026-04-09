@@ -52,6 +52,17 @@ CREATE TABLE IF NOT EXISTS ai_insights (
 );
 
 -- =============================================================================
+-- Data Quality Metadata for freshness monitoring (dbt)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS dq_metadata (
+    id SERIAL PRIMARY KEY,
+    table_name VARCHAR(50) NOT NULL UNIQUE,
+    last_successful_ts TIMESTAMPTZ,
+    rows_inserted INT,
+    last_check TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =============================================================================
 -- VIEWS & INDEXES
 -- =============================================================================
 

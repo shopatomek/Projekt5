@@ -34,6 +34,7 @@ from .checks import (
     NotNullCheck,
     RangeCheck,
     UrlFormatCheck,
+    FutureTimestampCheck
 )
 
 # Konfiguracja logowania — logi idą do stdout (Docker zbiera je przez `docker logs`)
@@ -57,7 +58,8 @@ CHECKS_BY_TABLE: Dict[str, List[DataQualityCheck]] = {
         NotNullCheck("symbol"),
         RangeCheck("price_usd", min_val=0.0, exclusive_min=True),   # cena musi być > 0
         RangeCheck("volume_24h", min_val=0.0),                       # wolumen >= 0
-        RangeCheck("price_change_24h", min_val=-100.0, max_val=100.0),  # zmiana ±100%
+        RangeCheck("price_change_24h", min_val=-100.0, max_val=100.0), # zmiana ±100%
+        FutureTimestampCheck("timestamp", max_future_minutes=5)  
     ],
     "weather_data": [
         NotNullCheck("city"),

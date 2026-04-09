@@ -1,4 +1,3 @@
-
 # ZMIANA WZGLĘDEM ORYGINAŁU:
 # Stara wersja: importuje run_data_quality_checks() z data_quality.py (plik-funkcja)
 # Nowa wersja:  importuje engine z data_quality/ (pakiet-moduł ABC)
@@ -38,13 +37,15 @@ async def fetch_and_store_crypto():
         # Budujemy listę dict zamiast parsowania string SQL (bezpieczniejsze)
         records = []
         for t in tickers:
-            records.append({
-                "symbol": t["symbol"].replace("USDT", ""),
-                "price_usd": float(t.get("lastPrice") or 0),
-                "market_cap": 0,
-                "volume_24h": int(float(t.get("quoteVolume") or 0)),
-                "price_change_24h": float(t.get("priceChangePercent") or 0),
-            })
+            records.append(
+                {
+                    "symbol": t["symbol"].replace("USDT", ""),
+                    "price_usd": float(t.get("lastPrice") or 0),
+                    "market_cap": 0,
+                    "volume_24h": int(float(t.get("quoteVolume") or 0)),
+                    "price_change_24h": float(t.get("priceChangePercent") or 0),
+                }
+            )
 
         # ── KROK 1: Data Quality check PRZED zapisem ─────────────────────────
         # Sprawdzamy każdy rekord. engine.run() zwraca (report, clean_record).
@@ -55,22 +56,14 @@ async def fetch_and_store_crypto():
         dq_failures = 0
 
         for record in records:
-            report, clean = engine.run(
-                "crypto_prices",
-                record,
-                record_id=record["symbol"]
-            )
+            report, clean = engine.run("crypto_prices", record, record_id=record["symbol"])
             if not report.passed:
                 dq_failures += 1
             clean_records.append(clean)
 
         # ── KROK 2: Bulk INSERT do crypto_prices ─────────────────────────────
         # Używamy clean_records (po naprawie) a nie oryginalnych records
-        sql_values = ", ".join([
-            f"('{r['symbol']}', {r['price_usd']:.8f}, {r['market_cap']}, "
-            f"{r['volume_24h']}, {r['price_change_24h']:.4f})"
-            for r in clean_records
-        ])
+        sql_values = ", ".join([f"('{r['symbol']}', {r['price_usd']:.8f}, {r['market_cap']}, " f"{r['volume_24h']}, {r['price_change_24h']:.4f})" for r in clean_records])
 
         execute_query(
             f"""
@@ -79,17 +72,25 @@ async def fetch_and_store_crypto():
             ON CONFLICT DO NOTHING
             """
         )
+        # ── KROK 2b: Zapisz metadane dla dbt freshness monitoring ─────────────
+        execute_query(
+            """
+            INSERT INTO dq_metadata (table_name, last_successful_ts, rows_inserted)
+            VALUES ('crypto_prices', NOW(), :count)
+            ON CONFLICT (table_name) DO UPDATE
+            SET last_successful_ts = EXCLUDED.last_successful_ts,
+                rows_inserted = EXCLUDED.rows_inserted,
+                last_check = NOW()
+        """,
+            {"count": len(clean_records)},
+        )
 
         # ── KROK 3: Cleanup starych danych ───────────────────────────────────
-        execute_query(
-            "DELETE FROM crypto_prices WHERE timestamp < NOW() - INTERVAL '30 days'"
-        )
+        execute_query("DELETE FROM crypto_prices WHERE timestamp < NOW() - INTERVAL '30 days'")
         try:
-            execute_query(
-                "REFRESH MATERIALIZED VIEW CONCURRENTLY mart_market_daily"
-            )
+            execute_query("REFRESH MATERIALIZED VIEW CONCURRENTLY mart_market_daily")
         except Exception:
-            pass  
+            pass
         status_msg = f"[{datetime.now().strftime('%H:%M:%S')}] Binance: {len(clean_records)} rekordów"
         if dq_failures:
             status_msg += f" | ⚠️ DQ failures: {dq_failures}"

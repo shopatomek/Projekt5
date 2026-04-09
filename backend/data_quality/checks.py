@@ -158,4 +158,28 @@ class UrlFormatCheck(DataQualityCheck):
     def fix(self, record: Dict[str, Any]) -> Dict[str, Any]:
         return record
 
+class FutureTimestampCheck(DataQualityCheck):
+    """
+    Sprawdza czy timestamp nie jest z przyszłości (poza dozwolonym oknem).
+    """
+    def __init__(self, field: str, max_future_minutes: int = 5):
+        self.field = field
+        self.max_future_minutes = max_future_minutes
 
+    @property
+    def name(self) -> str:
+        return f"FutureTimestampCheck:{self.field}"
+
+    def validate(self, record: Dict[str, Any]) -> bool:
+        from datetime import datetime, timezone, timedelta
+        value = record.get(self.field)
+        if value is None:
+            return True   # puste sprawdza NotNullCheck
+        if isinstance(value, datetime):
+            now_utc = datetime.now(timezone.utc)
+            return value <= now_utc + timedelta(minutes=self.max_future_minutes)
+        return True   # jeśli to nie jest datetime, przepuść (inny check to wyłapie)
+
+    def fix(self, record: Dict[str, Any]) -> Dict[str, Any]:
+        # Nie naprawiamy, tylko raportujemy
+        return record
