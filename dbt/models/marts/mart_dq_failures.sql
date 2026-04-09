@@ -1,9 +1,4 @@
-{{
-    config(
-        materialized='view',
-        schema='analytics'
-    )
-}}
+{{ config(materialized='view') }}
 
 SELECT
     DATE(generated_at AT TIME ZONE 'Europe/Warsaw') AS date,

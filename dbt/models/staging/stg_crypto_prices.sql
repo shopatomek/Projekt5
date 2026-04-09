@@ -1,8 +1,4 @@
-{{
-    config(
-        materialized='view'
-    )
-}}
+{{ config(materialized='view') }}
 
 SELECT
     symbol,
@@ -13,3 +9,4 @@ SELECT
     DATE(timestamp AT TIME ZONE 'Europe/Warsaw') AS date
 FROM {{ source('raw', 'crypto_prices') }}
 WHERE price_usd > 0
+  AND timestamp <= NOW()

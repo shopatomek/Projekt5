@@ -1,10 +1,4 @@
-{{
-    config(
-        materialized='table',
-        unique_key='date',
-        schema='analytics'
-    )
-}}
+{{ config(materialized='table', unique_key='date') }}
 
 SELECT
     cp.date,
