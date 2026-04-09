@@ -85,7 +85,7 @@ class DatabaseReporter:
             execute_query(
                 """
                 INSERT INTO ai_insights (insight_type, content, generated_at)
-                VALUES ('dq_failure', :content::jsonb, :ts)
+                VALUES ('dq_failure', :content, :ts)
                 """,
                 {
                     "content": json.dumps(content, default=str),
