@@ -135,7 +135,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 356M
     depends_on:
       postgres:
         condition: service_healthy
@@ -163,9 +163,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 768M
         reservations:
-          memory: 256M
+          memory: 400M
     restart: unless-stopped
 
   dbt:
