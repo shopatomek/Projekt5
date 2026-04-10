@@ -725,12 +725,24 @@ function NewsPanel({ news }) {
               <div
                 style={{
                   fontSize: "13px",
-                  color: "#c9d1d9",
                   lineHeight: "1.5",
                   marginBottom: "6px",
                 }}
               >
-                {n.title}
+                <a
+                  href={n.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: "#c9d1d9",
+                    textDecoration: "none",
+                    borderBottom: "1px dotted #4a6278",
+                  }}
+                  onMouseEnter={(e) => (e.target.style.color = "#e6b450")}
+                  onMouseLeave={(e) => (e.target.style.color = "#c9d1d9")}
+                >
+                  {n.title}
+                </a>
               </div>
               <div
                 style={{ display: "flex", gap: "10px", alignItems: "center" }}

@@ -92,7 +92,7 @@ async def get_dashboard_overview():
         stock_kpis = calculate_stock_kpis()
         news = execute_query(
             """
-            SELECT title, description, source, published_at
+            SELECT title, description, source, published_at, url
             FROM news_articles ORDER BY published_at DESC LIMIT 10
             """
         )
