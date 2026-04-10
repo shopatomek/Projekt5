@@ -181,7 +181,14 @@ services:
     working_dir: /usr/app
     ports:
       - "8080:8080"
-    command: sh -c "pip install dbt-core dbt-postgres && tail -f /dev/null"
+    command: >
+      sh -c "
+        pip install --quiet dbt-core dbt-postgres &&
+        dbt deps &&
+        dbt run &&
+        dbt docs generate &&
+        dbt docs serve --port 8080 --host 0.0.0.0
+      "
     depends_on:
       postgres:
         condition: service_healthy
@@ -189,6 +196,7 @@ services:
       resources:
         limits:
           memory: 512M
+    restart: unless-stopped
 
 volumes:
   postgres_data:
