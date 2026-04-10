@@ -61,7 +61,7 @@ async def fetch_initial_news_and_weather():
                 execute_query(
                     """
                     INSERT INTO news_articles (title, description, source, url, published_at)
-                    VALUES (%s, %s, 'BBC News', %s, %s)
+                    VALUES (:title, :description, 'BBC News', :url, :published_at)
                     ON CONFLICT DO NOTHING
                     """,
                     {"title": title, "description": description, "url": link, "published_at": pub_date},
@@ -102,7 +102,7 @@ async def fetch_initial_news_and_weather():
             execute_query(
                 """
                 INSERT INTO weather_data (city, temperature, humidity, weather_condition)
-                VALUES ('Warsaw', %s, %s, %s)
+                VALUES ('Warsaw', :temperature, :humidity, :weather_condition)
                 """,
                 {"temperature": temp, "humidity": humidity, "weather_condition": condition},
             )
@@ -115,6 +115,7 @@ async def fetch_initial_news_and_weather():
         news_cnt_result = execute_query("SELECT COUNT(*) as cnt FROM news_articles")
         news_cnt = news_cnt_result[0]["cnt"] if news_cnt_result else 0
         if news_cnt > 0:
+            import json
             from ai_insights import generate_daily_summary
             from analytics import calculate_crypto_kpis
 
@@ -134,9 +135,9 @@ async def fetch_initial_news_and_weather():
             execute_query(
                 """
                 INSERT INTO ai_insights (insight_type, content, generated_at)
-                VALUES ('daily_summary', %s, NOW())
+                VALUES ('daily_summary', :content, NOW())
                 """,
-                {"content": summary},
+                {"content": json.dumps(summary)},  # <-- kluczowa zmiana
             )
             print("✅ Wygenerowano Daily Summary")
     except Exception as e:
