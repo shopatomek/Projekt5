@@ -1,4 +1,3 @@
-import pytest
 from datetime import datetime, timezone, timedelta
 from data_quality.checks import (
     NotNullCheck,

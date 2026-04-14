@@ -1,10 +1,5 @@
-"""
-Testy dla DataQualityEngine i reporterów
-"""
-
-import pytest
 from datetime import datetime, timezone, timedelta
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 class TestDataQualityEngine:
