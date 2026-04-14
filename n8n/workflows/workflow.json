@@ -15,11 +15,11 @@
         },
         "options": {}
       },
-      "id": "cc2b8afe-0069-4347-9129-93ab13edec31",
+      "id": "43c46ce3-3e8d-4b4c-b70d-a130ed126e8d",
       "name": "HTTP Request",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [-680, 560]
+      "position": [140, 540]
     },
     {
       "parameters": {
@@ -27,8 +27,8 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-420, 560],
-      "id": "126dd692-918e-40b2-8e95-0dc7c4fbe4ae",
+      "position": [400, 540],
+      "id": "8660bfb0-a7a5-4a40-bfcd-6e7a7bc0a733",
       "name": "Normalize → Bulk SQL"
     },
     {
@@ -37,8 +37,8 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [180, 560],
-      "id": "ecdbbc42-e1ec-41fe-94ee-5cff16d7c89c",
+      "position": [1000, 540],
+      "id": "bed2caa8-9e6e-4a88-828b-63237da17971",
       "name": "Prepare Cleanup SQL"
     },
     {
@@ -52,11 +52,11 @@
           ]
         }
       },
-      "id": "ac83c862-2881-4f2e-8691-107d5b6c344a",
+      "id": "68441206-8709-4e94-9a02-03c302af9092",
       "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [-980, 560]
+      "position": [-160, 540]
     },
     {
       "parameters": {
@@ -64,11 +64,17 @@
         "query": "={{ $json.query }}",
         "options": {}
       },
-      "id": "1873e74e-afd8-403c-9090-2f326d3d7526",
+      "id": "00e9e764-fe36-40a3-893a-bc4ed9cc59bc",
       "name": "Postgres",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [-100, 560]
+      "position": [720, 540],
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -76,11 +82,17 @@
         "query": "={{ $json.query  }}",
         "options": {}
       },
-      "id": "af09e4ef-444a-4b45-b9b5-bc832969a094",
+      "id": "b1e08c1e-4c69-42ef-8942-b60e0106f12c",
       "name": "Postgres1",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [460, 460]
+      "position": [1280, 440],
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -94,8 +106,8 @@
       },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [-980, 900],
-      "id": "9fc42824-747f-44df-ac56-ddb214380eb7",
+      "position": [-160, 880],
+      "id": "48429281-1826-4933-a5a0-a28ee5c03089",
       "name": "Every Hour"
     },
     {
@@ -105,8 +117,8 @@
       },
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1,
-      "position": [-680, 780],
-      "id": "882691f0-ae7d-4a0e-9c7b-12b5b31db54e",
+      "position": [140, 760],
+      "id": "881c8960-fc52-4b43-807a-11d9869b2f78",
       "name": "GET BBC Business RSS"
     },
     {
@@ -115,8 +127,8 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-420, 780],
-      "id": "2894d3f7-77fe-4da5-b4c7-77c5573c2460",
+      "position": [400, 760],
+      "id": "fc741f39-9116-485a-b110-0a118ba75aa3",
       "name": "Normalize News"
     },
     {
@@ -127,9 +139,15 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [-100, 780],
-      "id": "2a15d907-936b-4f52-ad41-4f0f3140221c",
-      "name": "INSERT news_articles"
+      "position": [720, 760],
+      "id": "659aacb4-68f8-40f4-abe7-37d913dc49a9",
+      "name": "INSERT news_articles",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -159,8 +177,8 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [-680, 1000],
-      "id": "836357e8-2df8-4891-baad-19338a3a0406",
+      "position": [140, 980],
+      "id": "e820af6d-864f-4879-a46c-bf0756a0785d",
       "name": "GET Open-Meteo Warsaw"
     },
     {
@@ -169,8 +187,8 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-420, 1000],
-      "id": "62f03a8b-6f81-4bbf-ae4c-12690334afa2",
+      "position": [400, 980],
+      "id": "26238844-d75f-4cb5-baa3-aab7cea2b28c",
       "name": "Normalize Weather"
     },
     {
@@ -181,9 +199,15 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [-100, 1000],
-      "id": "cf8c0caa-cce2-4e59-a875-207f4329285f",
-      "name": "INSERT weather_data"
+      "position": [720, 980],
+      "id": "3b2954f1-e9e0-4402-aafb-411caac6a609",
+      "name": "INSERT weather_data",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -193,9 +217,15 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [200, 900],
-      "id": "143f6e38-765a-4971-a064-a708ed64bc8b",
-      "name": "Cleanup Old Data"
+      "position": [1020, 880],
+      "id": "a9f25149-cd62-475a-97dd-4fa83513d42b",
+      "name": "Cleanup Old Data",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -206,8 +236,8 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [-660, 1320],
-      "id": "cfdd130a-ed93-4b16-b617-cfdaab4dd26a",
+      "position": [160, 1300],
+      "id": "fec6ffa5-f095-414b-be10-067eaba7fd4e",
       "name": "GET Dashboard Overview"
     },
     {
@@ -219,8 +249,8 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [-420, 1320],
-      "id": "38b8d38c-6fa1-4c00-b447-176bee39b520",
+      "position": [400, 1300],
+      "id": "b7c86acd-b043-4dc4-828d-29ce350b8323",
       "name": "GET AI Daily Summary"
     },
     {
@@ -229,8 +259,8 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-100, 1200],
-      "id": "cfd71952-0c4b-4920-bdfd-57c0ff6cfd2b",
+      "position": [720, 1180],
+      "id": "7f91f169-d14b-4007-a610-f8b07ada36f3",
       "name": "Prepare Cache SQL"
     },
     {
@@ -241,9 +271,15 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [200, 1200],
-      "id": "b6c5fa97-278d-426b-af94-1fb616cd40c8",
-      "name": "Cache AI Insights"
+      "position": [1020, 1180],
+      "id": "15d85969-d529-423d-9f16-d7ebfdb934a3",
+      "name": "Cache AI Insights",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -258,8 +294,8 @@
       },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [-1160, 1780],
-      "id": "65af378f-6e05-4834-901a-b6b0b8d9584b",
+      "position": [-340, 1760],
+      "id": "6a120c7f-dcb1-41bb-98db-96c1e453afc1",
       "name": "Every 15 Min (Anomaly Check)"
     },
     {
@@ -270,9 +306,15 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [-940, 1780],
-      "id": "0fb56a6f-5d54-4c4d-ae6a-15e78b3b80f9",
-      "name": "Check Price Anomalies"
+      "position": [100, 1760],
+      "id": "c5fb726c-17b7-41ec-9a3a-e6f2bb511ce5",
+      "name": "Check Price Anomalies",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -299,8 +341,8 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-760, 1780],
-      "id": "0ab5452b-1209-4717-835a-02cafc7432f1",
+      "position": [280, 1760],
+      "id": "ce880cb8-c5f2-48f6-ae75-632f5fe9c626",
       "name": "Anomaly Found?"
     },
     {
@@ -309,8 +351,8 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-100, 1780],
-      "id": "f2de70ee-dd28-4647-91da-7dd9b1c0679e",
+      "position": [940, 1760],
+      "id": "756df9fe-007f-4714-b245-12d2cbbd96c6",
       "name": "Log / Alert Anomaly"
     },
     {
@@ -321,9 +363,15 @@
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.3,
-      "position": [200, 1920],
-      "id": "7d189b36-04ca-411b-8f7c-8a1b0a7afd7b",
-      "name": "Save Anomaly to DB"
+      "position": [1240, 1900],
+      "id": "ef84a19b-2924-4d1c-ae38-903608eda99d",
+      "name": "Save Anomaly to DB",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -331,19 +379,19 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-580, 2000],
-      "id": "7c7a9a1a-01ce-4d65-9d59-a05459bb1c89",
+      "position": [460, 1980],
+      "id": "17b61b77-1adb-4c22-9afd-ce9c126d645e",
       "name": "No Anomaly – Skip"
     },
     {
       "parameters": {
-        "jsCode": "// Formatowanie odpowiedzi z GET AI Daily Summary do wiadomości Telegram\nconst data = $input.first().json;\n\n// Pobierz pola z odpowiedzi API\nconst summary = data.summary || 'Brak podsumowania';\nconst insights = data.insights || [];\nconst recommendations = data.recommendations || [];\nconst generatedAt = data.generated_at ? new Date(data.generated_at).toLocaleString('pl-PL') : 'przed chwilą';\n\n// Zbuduj wiadomość w formacie podobnym do anomalii\nlet message = `📊 *PODSUMOWANIE GODZINOWE* 📊\\n\\n`;\nmessage += `*${summary}*\\n\\n`;\nmessage += `🔍 *Najważniejsze spostrzeżenia:*\\n`;\ninsights.forEach((insight, i) => {\n  message += `${i+1}. ${insight}\\n`;\n});\nmessage += `\\n💡 *Rekomendacje:*\\n`;\nrecommendations.forEach((rec, i) => {\n  message += `${i+1}. ${rec}\\n`;\n});\nmessage += `\\n⏱️ *Wygenerowano:* ${generatedAt}`;\n\n// Zwróć dane dla węzła Telegram\nreturn {\n  json: {\n    chat_id: \"YOUR_TELEGRAM_CHAT_ID\",\n    text: message,\n    parse_mode: \"Markdown\"\n  }\n};"
+        "jsCode": "// Formatowanie odpowiedzi z GET AI Daily Summary do wiadomości Telegram\nconst data = $input.first().json;\n\n// Pobierz pola z odpowiedzi API\nconst summary = data.summary || 'Brak podsumowania';\nconst insights = data.insights || [];\nconst recommendations = data.recommendations || [];\nconst generatedAt = data.generated_at ? new Date(data.generated_at).toLocaleString('pl-PL') : 'przed chwilą';\n\n// Zbuduj wiadomość w formacie podobnym do anomalii\nlet message = `📊 *PODSUMOWANIE GODZINOWE* 📊\\n\\n`;\nmessage += `*${summary}*\\n\\n`;\nmessage += `🔍 *Najważniejsze spostrzeżenia:*\\n`;\ninsights.forEach((insight, i) => {\n  message += `${i+1}. ${insight}\\n`;\n});\nmessage += `\\n💡 *Rekomendacje:*\\n`;\nrecommendations.forEach((rec, i) => {\n  message += `${i+1}. ${rec}\\n`;\n});\nmessage += `\\n⏱️ *Wygenerowano:* ${generatedAt}`;\n\n// Zwróć dane dla węzła Telegram\nreturn {\n  json: {\n    chat_id: \"YOUR_TELEGRAM_CHAT_ID\",   // Twój Chat ID (ten sam co dla anomalii)\n    text: message,\n    parse_mode: \"Markdown\"\n  }\n};"
       },
-      "id": "b88108ec-8efc-4b9b-8aff-3b5ad32ec3c5",
+      "id": "63f66f1c-1acd-4dc9-a4da-9c1357f26eb2",
       "name": "Format Summary for Telegram.",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-100, 1440]
+      "position": [720, 1420]
     },
     {
       "parameters": {
@@ -354,11 +402,17 @@
           "parse_mode": "Markdown"
         }
       },
-      "id": "fc2e3062-9160-4be5-b7fd-85546b6f45d6",
+      "id": "b914d914-410e-4a43-9ba6-c8c470c32f7b",
       "name": "telegram 1 hour summary",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.1,
-      "position": [200, 1440]
+      "position": [1020, 1420],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_ID",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -372,8 +426,8 @@
       },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [-980, 1320],
-      "id": "ba8c3c1f-4ca1-4a9f-8811-92b5e4580cf8",
+      "position": [-160, 1300],
+      "id": "d0f0cbaf-e6e4-4e95-98cd-b1f510604175",
       "name": "AI 1 hour summary"
     },
     {
@@ -385,11 +439,17 @@
           "parse_mode": "Markdown"
         }
       },
-      "id": "c2ffa0aa-c19e-456d-8583-d91807844fd2",
+      "id": "dca209e3-cead-4547-89e5-832dd5a6d09d",
       "name": "telegram anomaly alert 15 min",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.1,
-      "position": [200, 1660]
+      "position": [1240, 1640],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_ID",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -420,29 +480,110 @@
           "redirect": {}
         }
       },
-      "id": "b48bf67c-8a29-419f-a642-cdb4daff99c8",
+      "id": "758f2920-b4de-492d-b047-87de22112553",
       "name": "Get AI Explanation",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [-420, 1600]
+      "position": [620, 1580]
     },
     {
       "parameters": {},
-      "id": "1287cc59-5d5d-4dbb-a6aa-4ec8b3f110f4",
+      "id": "a282b5a6-8608-4ebb-8932-2d230f24ea5d",
       "name": "Merge",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 2.1,
-      "position": [-260, 1780]
+      "position": [780, 1760]
     },
     {
       "parameters": {
         "jsCode": "// Deduplikacja – zostaw tylko jedną anomalię na symbol\nconst anomalies = $input.all().map(i => i.json);\nconst uniqueMap = new Map();\n\nfor (const anomaly of anomalies) {\n  const symbol = anomaly.symbol;\n  const currentChange = Math.abs(parseFloat(anomaly.price_change_24h));\n  \n  if (!uniqueMap.has(symbol) || currentChange > uniqueMap.get(symbol).absChange) {\n    uniqueMap.set(symbol, {\n      ...anomaly,\n      absChange: currentChange\n    });\n  }\n}\n\n// Zwróć tylko unikalne anomalie (jedna na symbol)\nconst uniqueAnomalies = Array.from(uniqueMap.values()).map(a => {\n  delete a.absChange;\n  return { json: a };\n});\n\nreturn uniqueAnomalies;"
       },
-      "id": "3e8b4d8d-09d8-4ef3-9f00-0f8912c9827e",
+      "id": "8c3fc2fb-fe27-41ac-9a02-bb40fe3d006f",
       "name": "Deduplikacja",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-600, 1600]
+      "position": [440, 1580]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    table_name,\n    last_successful_ts,\n    EXTRACT(EPOCH FROM (NOW() - last_successful_ts)) / 60 AS minutes_ago\nFROM dq_metadata\nWHERE last_successful_ts < NOW() - INTERVAL '15 minutes'",
+        "options": {}
+      },
+      "id": "19fd1728-7725-43b9-87c1-060a0f81b73b",
+      "name": "Postgres2",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [-320, 1560],
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "3ea6cf01-7eda-4d9b-b23e-f4b15f3cdc87",
+              "leftValue": "={{ $json.table_name }}",
+              "rightValue": "=0",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "137bda73-4a11-4f08-8fc1-c15be1175267",
+              "leftValue": "=",
+              "rightValue": "=",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "looseTypeValidation": true
+        }
+      },
+      "id": "8f59e605-5b49-4091-b637-45f0910f3d10",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-100, 1560]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=⚠️ <b>DATA FRESHNESS ALERT</b> ⚠️\n\n<b>Table:</b> {{ $json.table_name }}\n<b>Last successful update:</b> {{ $json.last_successful_ts }}\n<b>Delay:</b> {{ $json.minutes_ago }} minutes\n\nPlease check the data pipeline!",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "47a49c43-f7f8-40cd-9299-0e0cbc56af36",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [120, 1540],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_ID",
+          "name": "Telegram account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -618,6 +759,11 @@
             "node": "Check Price Anomalies",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Postgres2",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -726,16 +872,40 @@
           }
         ]
       ]
+    },
+    "Postgres2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "",
+  "versionId": "73551f2f-aea7-444d-8330-a159f0d3ff24",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "REPLACE_WITH_YOUR_INSTANCE_ID"
   },
+  "id": "",
   "tags": [
     {
       "createdAt": "2026-04-03T14:49:31.584Z",
