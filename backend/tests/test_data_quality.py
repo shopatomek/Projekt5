@@ -1,294 +1,170 @@
-# tests/test_data_quality.py
-import json
-from unittest.mock import MagicMock, patch
-from data_quality import (
-    check_crypto_data_quality,
-    check_weather_data_quality,
-    check_news_data_quality,
-    run_data_quality_checks,
-)
+"""
+Testy dla DataQualityEngine i reporterów
+"""
+
+import pytest
+from datetime import datetime, timezone, timedelta
+from unittest.mock import patch, MagicMock
 
 
-def log_test_result(
-    test_name, input_data, expected, result, status, error_message=None
-):
-    test_result = {
-        "test_name": test_name,
-        "input_data": input_data,
-        "expected": expected,
-        "result": result,
-        "status": status,
-        "error_message": error_message,
-    }
-    print(json.dumps(test_result, indent=2, ensure_ascii=False))
+class TestDataQualityEngine:
+    def test_engine_run_on_crypto_prices(self):
+        from data_quality.engine import engine
+        from data_quality.reporters import LogReporter
+
+        engine.set_reporters([LogReporter()])
+
+        test_record = {
+            "symbol": "BTC",
+            "price_usd": 50000,
+            "volume_24h": 1000000,
+            "price_change_24h": 2.5,
+            "timestamp": datetime.now(timezone.utc),
+        }
+
+        report, cleaned = engine.run("crypto_prices", test_record, record_id="BTC")
+
+        assert report.passed is True
+        assert report.failed_checks == []
+        assert report.table == "crypto_prices"
+        assert report.record_id == "BTC"
+
+    def test_engine_run_with_future_timestamp(self):
+        from data_quality.engine import engine
+        from data_quality.reporters import LogReporter
+
+        engine.set_reporters([LogReporter()])
+
+        future = datetime.now(timezone.utc) + timedelta(days=365)
+        test_record = {
+            "symbol": "BTC",
+            "price_usd": 50000,
+            "volume_24h": 1000000,
+            "price_change_24h": 2.5,
+            "timestamp": future,
+        }
+
+        report, cleaned = engine.run("crypto_prices", test_record, record_id="BTC")
+
+        assert report.passed is False
+        assert "FutureTimestampCheck:timestamp" in report.failed_checks
+
+    def test_engine_run_missing_table(self):
+        from data_quality.engine import engine
+        from data_quality.reporters import LogReporter
+
+        engine.set_reporters([LogReporter()])
+
+        report, cleaned = engine.run("non_existent_table", {"some": "data"})
+
+        assert report.passed is True
+        assert report.total_checks == 0
+
+    def test_engine_run_weather_data(self):
+        from data_quality.engine import engine
+        from data_quality.reporters import LogReporter
+
+        engine.set_reporters([LogReporter()])
+
+        test_record = {
+            "city": "Warsaw",
+            "temperature": 20.5,
+            "humidity": 60,
+            "weather_condition": "sunny",
+        }
+
+        report, cleaned = engine.run("weather_data", test_record, record_id="Warsaw")
+
+        assert report.passed is True
+        assert report.failed_checks == []
+
+    def test_engine_run_news_articles(self):
+        from data_quality.engine import engine
+        from data_quality.reporters import LogReporter
+
+        engine.set_reporters([LogReporter()])
+
+        test_record = {
+            "title": "Bitcoin rises",
+            "source": "BBC News",
+            "url": "https://bbc.com/news/123",
+            "published_at": datetime.now(timezone.utc),
+        }
+
+        report, cleaned = engine.run("news_articles", test_record, record_id="test_news")
+
+        assert report.passed is True
+        assert report.failed_checks == []
+
+    def test_engine_run_news_articles_missing_title(self):
+        from data_quality.engine import engine
+        from data_quality.reporters import LogReporter
+
+        engine.set_reporters([LogReporter()])
+
+        test_record = {
+            "title": "",
+            "source": "BBC News",
+            "url": "https://bbc.com/news/123",
+            "published_at": datetime.now(timezone.utc),
+        }
+
+        report, cleaned = engine.run("news_articles", test_record, record_id="test_news")
+
+        assert report.passed is False
+        assert "NotNullCheck:title" in report.failed_checks
 
 
-def test_check_crypto_data_quality_valid():
-    crypto_data = {
-        "symbol": "BTC",
-        "price_usd": 50000,
-        "volume_24h": 1000000,
-        "price_change_24h": 2.5,
-    }
-    issues = check_crypto_data_quality(**crypto_data)
-    expected = []
-    result = issues
+class TestDatabaseReporter:
+    def test_database_reporter_only_reports_failures(self):
+        """Test że reporter nie zapisuje sukcesów"""
+        from data_quality.reporters import DatabaseReporter
+        from data_quality.engine import DQReport
+        from datetime import datetime, timezone
 
-    try:
-        assert issues == expected, f"Oczekiwano brak błędów, ale wykryto: {issues}"
-        log_test_result(
-            test_name="test_check_crypto_data_quality_valid",
-            input_data=crypto_data,
-            expected=expected,
-            result=result,
-            status="PASSED",
+        reporter = DatabaseReporter()
+
+        passed_report = DQReport(
+            table="crypto_prices",
+            passed=True,
+            failed_checks=[],
+            original_record={},
+            fixed_record={},
+            auto_repaired=False,
+            checked_at=datetime.now(timezone.utc).isoformat(),
+            record_id="BTC",
+            total_checks=5,
         )
-    except AssertionError as e:
-        log_test_result(
-            test_name="test_check_crypto_data_quality_valid",
-            input_data=crypto_data,
-            expected=expected,
-            result=result,
-            status="FAILED",
-            error_message=str(e),
+
+        # Mockujemy execute_query w module database (tam gdzie jest faktycznie importowane)
+        with patch("database.execute_query") as mock_query:
+            reporter.report(passed_report)
+            # Nie powinien wywołać execute_query dla passed=True
+            mock_query.assert_not_called()
+
+    def test_database_reporter_inserts_on_failure(self):
+        """Test że reporter zapisuje błędy"""
+        from data_quality.reporters import DatabaseReporter
+        from data_quality.engine import DQReport
+        from datetime import datetime, timezone
+
+        reporter = DatabaseReporter()
+
+        failed_report = DQReport(
+            table="crypto_prices",
+            passed=False,
+            failed_checks=["RangeCheck:price_usd"],
+            original_record={"price_usd": -100},
+            fixed_record={"price_usd": 0},
+            auto_repaired=True,
+            checked_at=datetime.now(timezone.utc).isoformat(),
+            record_id="BTC",
+            total_checks=5,
         )
-        raise
 
-
-def test_check_crypto_data_quality_invalid():
-    crypto_data = {
-        "symbol": "BTC",
-        "price_usd": -100,
-        "volume_24h": 1000000,
-        "price_change_24h": 2.5,
-    }
-    issues = check_crypto_data_quality(**crypto_data)
-    expected = ["Invalid price for BTC: -100"]
-    result = issues
-
-    try:
-        assert expected[0] in issues, "Błąd ujemnej ceny nie został wykryty!"
-        log_test_result(
-            test_name="test_check_crypto_data_quality_invalid",
-            input_data=crypto_data,
-            expected=expected,
-            result=result,
-            status="PASSED",
-        )
-    except AssertionError as e:
-        log_test_result(
-            test_name="test_check_crypto_data_quality_invalid",
-            input_data=crypto_data,
-            expected=expected,
-            result=result,
-            status="FAILED",
-            error_message=str(e),
-        )
-        raise
-
-
-def test_check_weather_data_quality_valid():
-    weather_data = {
-        "city": "Warsaw",
-        "temperature": 20.5,
-        "humidity": 60,
-        "weather_condition": "sunny",
-    }
-    issues = check_weather_data_quality(**weather_data)
-    expected = []
-    result = issues
-
-    try:
-        assert issues == expected, f"Oczekiwano brak błędów, ale wykryto: {issues}"
-        log_test_result(
-            test_name="test_check_weather_data_quality_valid",
-            input_data=weather_data,
-            expected=expected,
-            result=result,
-            status="PASSED",
-        )
-    except AssertionError as e:
-        log_test_result(
-            test_name="test_check_weather_data_quality_valid",
-            input_data=weather_data,
-            expected=expected,
-            result=result,
-            status="FAILED",
-            error_message=str(e),
-        )
-        raise
-
-
-def test_check_weather_data_quality_invalid():
-    weather_data = {
-        "city": "Warsaw",
-        "temperature": -60,
-        "humidity": 60,
-        "weather_condition": "sunny",
-    }
-    issues = check_weather_data_quality(**weather_data)
-    expected = ["Invalid temperature for Warsaw: -60°C"]
-    result = issues
-
-    try:
-        assert expected[0] in issues, "Błąd temperatury nie został wykryty!"
-        log_test_result(
-            test_name="test_check_weather_data_quality_invalid",
-            input_data=weather_data,
-            expected=expected,
-            result=result,
-            status="PASSED",
-        )
-    except AssertionError as e:
-        log_test_result(
-            test_name="test_check_weather_data_quality_invalid",
-            input_data=weather_data,
-            expected=expected,
-            result=result,
-            status="FAILED",
-            error_message=str(e),
-        )
-        raise
-
-
-def test_check_news_data_quality_valid():
-    news_data = {
-        "title": "Bitcoin Price Surges",
-        "description": "Bitcoin price has surged by 10%.",
-        "source": "BBC Business",
-        "url": "https://bbc.com/news/123",
-        "published_at": "2026-03-24T12:00:00Z",
-    }
-    issues = check_news_data_quality(**news_data)
-    expected = []
-    result = issues
-
-    try:
-        assert issues == expected, f"Oczekiwano brak błędów, ale wykryto: {issues}"
-        log_test_result(
-            test_name="test_check_news_data_quality_valid",
-            input_data=news_data,
-            expected=expected,
-            result=result,
-            status="PASSED",
-        )
-    except AssertionError as e:
-        log_test_result(
-            test_name="test_check_news_data_quality_valid",
-            input_data=news_data,
-            expected=expected,
-            result=result,
-            status="FAILED",
-            error_message=str(e),
-        )
-        raise
-
-
-def test_check_news_data_quality_invalid():
-    news_data = {
-        "title": "",
-        "description": "Bitcoin price has surged by 10%.",
-        "source": "BBC Business",
-        "url": "https://bbc.com/news/123",
-        "published_at": "2026-03-24T12:00:00Z",
-    }
-    issues = check_news_data_quality(**news_data)
-    expected = ["Missing title"]
-    result = issues
-
-    try:
-        assert expected[0] in issues, "Błąd braku tytułu nie został wykryty!"
-        log_test_result(
-            test_name="test_check_news_data_quality_invalid",
-            input_data=news_data,
-            expected=expected,
-            result=result,
-            status="PASSED",
-        )
-    except AssertionError as e:
-        log_test_result(
-            test_name="test_check_news_data_quality_invalid",
-            input_data=news_data,
-            expected=expected,
-            result=result,
-            status="FAILED",
-            error_message=str(e),
-        )
-        raise
-
-
-def test_run_data_quality_checks_crypto():
-    crypto_data = {
-        "symbol": "BTC",
-        "price_usd": 50000,
-        "volume_24h": 1000000,
-        "price_change_24h": 2.5,
-    }
-
-    mock_conn = MagicMock()
-    mock_cursor = MagicMock()
-    mock_conn.cursor.return_value = mock_cursor
-
-    input_data = {"table_name": "crypto_prices", "data": crypto_data}
-
-    try:
-        with patch("data_quality.get_db_connection", return_value=mock_conn):
-            run_data_quality_checks("crypto_prices", crypto_data)
-            assert mock_cursor.close.called
-            assert mock_conn.close.called
-            log_test_result(
-                test_name="test_run_data_quality_checks_crypto",
-                input_data=input_data,
-                expected="Funkcja `run_data_quality_checks` została wywołana poprawnie",
-                result="Funkcja `run_data_quality_checks` została wywołana poprawnie",
-                status="PASSED",
-            )
-    except AssertionError as e:
-        log_test_result(
-            test_name="test_run_data_quality_checks_crypto",
-            input_data=input_data,
-            expected="Funkcja `run_data_quality_checks` została wywołana poprawnie",
-            result=str(e),
-            status="FAILED",
-            error_message=str(e),
-        )
-        raise
-
-
-def test_run_data_quality_checks_news():
-    news_data = {
-        "title": "",
-        "description": "Bitcoin price has surged by 10%.",
-        "source": "BBC Business",
-        "url": "https://bbc.com/news/123",
-        "published_at": "2026-03-24T12:00:00Z",
-    }
-
-    mock_conn = MagicMock()
-    mock_cursor = MagicMock()
-    mock_conn.cursor.return_value = mock_cursor
-
-    input_data = {"table_name": "news_articles", "data": news_data}
-
-    try:
-        with patch("data_quality.get_db_connection", return_value=mock_conn):
-            run_data_quality_checks("news_articles", news_data)
-            assert mock_cursor.close.called
-            assert mock_conn.close.called
-            log_test_result(
-                test_name="test_run_data_quality_checks_news",
-                input_data=input_data,
-                expected="Funkcja `run_data_quality_checks` została wywołana poprawnie",
-                result="Funkcja `run_data_quality_checks` została wywołana poprawnie",
-                status="PASSED",
-            )
-    except AssertionError as e:
-        log_test_result(
-            test_name="test_run_data_quality_checks_news",
-            input_data=input_data,
-            expected="Funkcja `run_data_quality_checks` została wywołana poprawnie",
-            result=str(e),
-            status="FAILED",
-            error_message=str(e),
-        )
-        raise
+        # Mockujemy execute_query w module database
+        with patch("database.execute_query") as mock_query:
+            mock_query.return_value = None
+            reporter.report(failed_report)
+            # Powinien wywołać execute_query
+            mock_query.assert_called_once()
