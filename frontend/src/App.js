@@ -284,6 +284,245 @@ function Clock() {
   );
 }
 
+// ─── Skeleton Components ───────────────────────────────────────────────────────
+function SkeletonKpiCard() {
+  return (
+    <div style={S.kpiCard}>
+      <div style={{ ...S.kpiLabel, opacity: 0.3 }}>LOADING</div>
+      <div
+        style={{
+          ...S.kpiValue,
+          opacity: 0.3,
+          backgroundColor: "#1c2a3a",
+          borderRadius: "4px",
+          width: "80%",
+          height: "32px",
+        }}
+      >
+        &nbsp;
+      </div>
+      <div
+        style={{
+          ...S.kpiSub,
+          opacity: 0.3,
+          backgroundColor: "#1c2a3a",
+          borderRadius: "4px",
+          width: "60%",
+          height: "16px",
+          marginTop: "8px",
+        }}
+      >
+        &nbsp;
+      </div>
+      <div style={{ ...S.kpiAccent, background: "#2a3f55" }} />
+    </div>
+  );
+}
+
+function SkeletonChart() {
+  return (
+    <div style={S.card}>
+      <div style={S.cardTitle}>
+        <span
+          style={{
+            opacity: 0.3,
+            backgroundColor: "#1c2a3a",
+            width: "150px",
+            height: "14px",
+            display: "inline-block",
+            borderRadius: "4px",
+          }}
+        >
+          &nbsp;
+        </span>
+        <span
+          style={{
+            opacity: 0.3,
+            backgroundColor: "#1c2a3a",
+            width: "80px",
+            height: "12px",
+            display: "inline-block",
+            borderRadius: "4px",
+          }}
+        >
+          &nbsp;
+        </span>
+      </div>
+      <div
+        style={{
+          height: "210px",
+          background: "#0d1117",
+          borderRadius: "8px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            width: "90%",
+            height: "80%",
+            background:
+              "linear-gradient(90deg, #1c2a3a 25%, #2a3f55 50%, #1c2a3a 75%)",
+            backgroundSize: "200% 100%",
+            animation: "shimmer 1.5s infinite",
+            borderRadius: "4px",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function SkeletonTable() {
+  return (
+    <div style={{ ...S.card, padding: "16px 0" }}>
+      <div style={{ ...S.cardTitle, padding: "0 16px", marginBottom: "8px" }}>
+        <span
+          style={{
+            opacity: 0.3,
+            backgroundColor: "#1c2a3a",
+            width: "120px",
+            height: "14px",
+            display: "inline-block",
+            borderRadius: "4px",
+          }}
+        >
+          &nbsp;
+        </span>
+      </div>
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div
+          key={i}
+          style={{
+            padding: "10px 16px",
+            borderBottom: "1px solid #0d1520",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <span
+            style={{
+              opacity: 0.3,
+              backgroundColor: "#1c2a3a",
+              width: "60px",
+              height: "16px",
+              borderRadius: "4px",
+            }}
+          >
+            &nbsp;
+          </span>
+          <span
+            style={{
+              opacity: 0.3,
+              backgroundColor: "#1c2a3a",
+              width: "80px",
+              height: "16px",
+              borderRadius: "4px",
+            }}
+          >
+            &nbsp;
+          </span>
+          <span
+            style={{
+              opacity: 0.3,
+              backgroundColor: "#1c2a3a",
+              width: "50px",
+              height: "16px",
+              borderRadius: "4px",
+            }}
+          >
+            &nbsp;
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SkeletonAIPanel() {
+  return (
+    <div style={S.aiBox}>
+      <div style={S.cardTitle}>
+        <span
+          style={{
+            opacity: 0.3,
+            backgroundColor: "#1c2a3a",
+            width: "180px",
+            height: "14px",
+            display: "inline-block",
+            borderRadius: "4px",
+          }}
+        >
+          &nbsp;
+        </span>
+        <span
+          style={{
+            opacity: 0.3,
+            backgroundColor: "#1c2a3a",
+            width: "100px",
+            height: "12px",
+            display: "inline-block",
+            borderRadius: "4px",
+          }}
+        >
+          &nbsp;
+        </span>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: "20px",
+        }}
+      >
+        {[1, 2, 3].map((i) => (
+          <div key={i}>
+            <div
+              style={{
+                opacity: 0.3,
+                backgroundColor: "#1c2a3a",
+                width: "80px",
+                height: "12px",
+                marginBottom: "12px",
+                borderRadius: "4px",
+              }}
+            >
+              &nbsp;
+            </div>
+            {[1, 2, 3].map((j) => (
+              <div
+                key={j}
+                style={{ display: "flex", gap: "10px", marginBottom: "10px" }}
+              >
+                <div
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    background: "#2a3f55",
+                    borderRadius: "50%",
+                  }}
+                />
+                <div
+                  style={{
+                    opacity: 0.3,
+                    backgroundColor: "#1c2a3a",
+                    width: "90%",
+                    height: "40px",
+                    borderRadius: "4px",
+                  }}
+                >
+                  &nbsp;
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
 function KpiCard({ label, value, sub, accentColor }) {
   return (
@@ -833,7 +1072,9 @@ export default function App() {
   const [aiSummary, setAiSummary] = useState(null);
   const [symbol, setSymbol] = useState("BTC");
   const [activeSource, setActiveSource] = useState("binance");
-  const [loading, setLoading] = useState(true);
+  const [loadingCrypto, setLoadingCrypto] = useState(true);
+  const [loadingNews, setLoadingNews] = useState(true);
+  const [loadingWeather, setLoadingWeather] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
 
@@ -842,8 +1083,19 @@ export default function App() {
       const r = await axios.get(`${API}/api/dashboard/overview`);
       setOverview(r.data);
       setLastUpdate(new Date());
+
+      // Ustaw stany ładowania dla poszczególnych sekcji na podstawie otrzymanych danych
+      if (r.data.crypto?.prices?.length > 0) setLoadingCrypto(false);
+      if (r.data.news?.length > 0) setLoadingNews(false);
+      if (r.data.weather) setLoadingWeather(false);
     } catch (e) {
       console.error(e);
+      // W przypadku błędu i tak wyłącz ładowanie po pewnym czasie
+      setTimeout(() => {
+        setLoadingCrypto(false);
+        setLoadingNews(false);
+        setLoadingWeather(false);
+      }, 5000);
     }
   }, []);
 
@@ -871,10 +1123,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    Promise.all([fetchOverview(), fetchTrend(symbol), fetchAI()]).finally(() =>
-      setLoading(false),
-    );
-  }, []); // eslint-disable-line
+    Promise.all([fetchOverview(), fetchTrend(symbol), fetchAI()]);
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -914,6 +1164,16 @@ export default function App() {
       <link
         href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@600;700&display=swap"
         rel="stylesheet"
+      />
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+  `,
+        }}
       />
       <div style={S.root}>
         {/* ── Header ── */}
@@ -968,15 +1228,19 @@ export default function App() {
         </header>
 
         <main style={S.main}>
-          {loading ? (
-            <div style={{ ...S.loader, height: "60vh", fontSize: "13px" }}>
-              LOADING DATA...
-            </div>
-          ) : (
-            <>
-              {/* ── KPI Row ── */}
-              <div style={S.sectionLabel}>Market Overview</div>
-              <div style={S.kpiGrid}>
+          {/* ── KPI Row ── */}
+          <div style={S.sectionLabel}>Market Overview</div>
+          <div style={S.kpiGrid}>
+            {loadingCrypto ? (
+              <>
+                <SkeletonKpiCard />
+                <SkeletonKpiCard />
+                <SkeletonKpiCard />
+                <SkeletonKpiCard />
+                <SkeletonKpiCard />
+              </>
+            ) : (
+              <>
                 <KpiCard
                   label="Bitcoin (BTC)"
                   value={fmtPrice(btc?.price_usd)}
@@ -1017,289 +1281,294 @@ export default function App() {
                   sub={`${prices.length} assets tracked`}
                   accentColor={sentColor.color}
                 />
-                {weather && (
+                {weather ? (
                   <KpiCard
                     label={`Weather · ${weather.city}`}
                     value={`${fmt(weather.temperature, 1)}°C`}
                     sub={weather.weather_condition}
                     accentColor="#58a6ff"
                   />
-                )}
-                {/* Source switcher replaces the static "3 Active" card */}
+                ) : loadingWeather ? (
+                  <SkeletonKpiCard />
+                ) : null}
                 <SourceSwitcherCard
                   activeSource={activeSource}
                   setActiveSource={setActiveSource}
                 />
-              </div>
+              </>
+            )}
+          </div>
 
-              {/* ── Main panel + Table ── */}
-              <div style={S.sectionLabel}>
-                {activeSource === "binance"
-                  ? "Price Chart & Top Assets"
-                  : activeSource === "weather"
-                    ? "Weather Data & Top Assets"
-                    : "News Feed & Top Assets"}
-              </div>
-              <div style={S.chartsRow}>
-                {/* Left: dynamic source panel */}
-                <div style={S.card}>
-                  <div style={S.cardTitle}>
-                    <span>{meta.title}</span>
-                    <span
-                      style={{
-                        fontSize: "10px",
-                        color: "#4a6278",
-                        letterSpacing: "1px",
-                      }}
-                    >
-                      {meta.sub}
-                    </span>
-                  </div>
-                  {activeSource === "binance" && (
-                    <BinancePanel
-                      trend={trend}
-                      symbol={symbol}
-                      setSymbol={setSymbol}
-                    />
-                  )}
-                  {activeSource === "weather" && (
-                    <WeatherPanel weather={weather} />
-                  )}
-                  {activeSource === "news" && <NewsPanel news={news} />}
-                </div>
-
-                {/* Right: Top 10 table — always visible */}
-                <div
-                  style={{
-                    ...S.card,
-                    padding: "16px 0",
-                    overflowY: "auto",
-                    maxHeight: "420px",
-                  }}
-                >
-                  <div
+          {/* ── Main panel + Table ── */}
+          <div style={S.sectionLabel}>
+            {activeSource === "binance"
+              ? "Price Chart & Top Assets"
+              : activeSource === "weather"
+                ? "Weather Data & Top Assets"
+                : "News Feed & Top Assets"}
+          </div>
+          <div style={S.chartsRow}>
+            {/* Left: dynamic source panel */}
+            {(activeSource === "binance" && loadingCrypto) ||
+            (activeSource === "weather" && loadingWeather) ||
+            (activeSource === "news" && loadingNews) ? (
+              <SkeletonChart />
+            ) : (
+              <div style={S.card}>
+                <div style={S.cardTitle}>
+                  <span>{meta.title}</span>
+                  <span
                     style={{
-                      ...S.cardTitle,
-                      padding: "0 16px",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    Top Assets
-                  </div>
-                  <table style={S.table}>
-                    <thead>
-                      <tr>
-                        <th style={S.th}>Symbol</th>
-                        <th style={{ ...S.th, textAlign: "right" }}>Price</th>
-                        <th style={{ ...S.th, textAlign: "right" }}>24h %</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {prices.map((p, i) => (
-                        <tr
-                          key={p.symbol}
-                          style={{ cursor: "pointer" }}
-                          onClick={() => {
-                            setSymbol(p.symbol);
-                            setActiveSource("binance");
-                          }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.background = "#0d1520")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.background = "transparent")
-                          }
-                        >
-                          <td style={S.td}>
-                            <span
-                              style={{
-                                color: "#4a6278",
-                                fontSize: "10px",
-                                marginRight: "8px",
-                              }}
-                            >
-                              {String(i + 1).padStart(2, "0")}
-                            </span>
-                            <span
-                              style={{ color: "#e6edf3", fontWeight: "500" }}
-                            >
-                              {p.symbol}
-                            </span>
-                          </td>
-                          <td style={{ ...S.td, textAlign: "right" }}>
-                            {fmtPrice(p.price_usd)}
-                          </td>
-                          <td
-                            style={{
-                              ...S.td,
-                              textAlign: "right",
-                              color: changeColor(p.price_change_24h),
-                              fontWeight: "600",
-                            }}
-                          >
-                            {p.price_change_24h > 0 ? "+" : ""}
-                            {fmt(p.price_change_24h)}%
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div
-                    style={{
-                      padding: "12px 16px",
                       fontSize: "10px",
                       color: "#4a6278",
                       letterSpacing: "1px",
                     }}
                   >
-                    ↑ Click any row to view chart
-                  </div>
+                    {meta.sub}
+                  </span>
                 </div>
-              </div>
-
-              {/* ── AI Insights ── */}
-              <div style={S.sectionLabel}>
-                AI Intelligence · Llama 3.3 via Groq
-              </div>
-              <div style={S.aiBox}>
-                <div style={S.cardTitle}>
-                  <span>Daily Market Briefing</span>
-                  <button
-                    style={S.symbolBtn}
-                    onClick={fetchAI}
-                    disabled={aiLoading}
-                    onMouseEnter={(e) => {
-                      e.target.style.color = "#e6b450";
-                      e.target.style.borderColor = "#e6b450";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.color = "#7d9ab5";
-                      e.target.style.borderColor = "#2a3f55";
-                    }}
-                  >
-                    {aiLoading ? "GENERATING..." : "↻ REGENERATE"}
-                  </button>
-                </div>
-                {aiLoading ? (
-                  <div style={S.loader}>GENERATING INSIGHTS...</div>
-                ) : aiSummary ? (
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr 1fr",
-                      gap: "20px",
-                    }}
-                  >
-                    {/* Summary */}
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "10px",
-                          letterSpacing: "2px",
-                          color: "#4a6278",
-                          marginBottom: "10px",
-                        }}
-                      >
-                        SUMMARY
-                      </div>
-                      <p style={{ ...S.aiText, marginBottom: 0 }}>
-                        {aiSummary.summary}
-                      </p>
-                    </div>
-                    {/* Insights */}
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "10px",
-                          letterSpacing: "2px",
-                          color: "#4a6278",
-                          marginBottom: "10px",
-                        }}
-                      >
-                        KEY INSIGHTS
-                      </div>
-                      {aiSummary.insights?.map((ins, i) => (
-                        <div key={i} style={S.insightItem}>
-                          <div style={S.insightDot} />
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "#8b949e",
-                              lineHeight: "1.6",
-                            }}
-                          >
-                            {ins}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Recommendations */}
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "10px",
-                          letterSpacing: "2px",
-                          color: "#4a6278",
-                          marginBottom: "10px",
-                        }}
-                      >
-                        RECOMMENDATIONS
-                      </div>
-                      {aiSummary.recommendations?.map((rec, i) => (
-                        <div key={i} style={S.insightItem}>
-                          <div
-                            style={{ ...S.insightDot, background: "#58a6ff" }}
-                          />
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "#8b949e",
-                              lineHeight: "1.6",
-                            }}
-                          >
-                            {rec}
-                          </span>
-                        </div>
-                      ))}
-                      {aiSummary.generated_at && (
-                        <div
-                          style={{
-                            marginTop: "16px",
-                            fontSize: "10px",
-                            color: "#4a6278",
-                          }}
-                        >
-                          Generated {warsawTime(aiSummary.generated_at)}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div style={S.loader}>NO AI DATA</div>
+                {activeSource === "binance" && (
+                  <BinancePanel
+                    trend={trend}
+                    symbol={symbol}
+                    setSymbol={setSymbol}
+                  />
                 )}
+                {activeSource === "weather" && (
+                  <WeatherPanel weather={weather} />
+                )}
+                {activeSource === "news" && <NewsPanel news={news} />}
               </div>
+            )}
 
-              {/* ── Footer ── */}
+            {/* Right: Top 10 table — always visible */}
+            {loadingCrypto ? (
+              <SkeletonTable />
+            ) : (
               <div
                 style={{
-                  marginTop: "32px",
-                  paddingTop: "16px",
-                  borderTop: "1px solid #1c2a3a",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "10px",
-                  color: "#4a6278",
-                  letterSpacing: "1px",
+                  ...S.card,
+                  padding: "16px 0",
+                  overflowY: "auto",
+                  maxHeight: "420px",
                 }}
               >
-                <span>AI-POWERED BI DASHBOARD · TOMASZ SZOPA</span>
-                <span>
-                  <span style={{ ...S.statusDot, background: "#3fb950" }} />
-                  FASTAPI · N8N · POSTGRESQL · GROQ/LLAMA 3.3
-                </span>
+                <div
+                  style={{
+                    ...S.cardTitle,
+                    padding: "0 16px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Top Assets
+                </div>
+                <table style={S.table}>
+                  <thead>
+                    <tr>
+                      <th style={S.th}>Symbol</th>
+                      <th style={{ ...S.th, textAlign: "right" }}>Price</th>
+                      <th style={{ ...S.th, textAlign: "right" }}>24h %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {prices.map((p, i) => (
+                      <tr
+                        key={p.symbol}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                          setSymbol(p.symbol);
+                          setActiveSource("binance");
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = "#0d1520")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "transparent")
+                        }
+                      >
+                        <td style={S.td}>
+                          <span
+                            style={{
+                              color: "#4a6278",
+                              fontSize: "10px",
+                              marginRight: "8px",
+                            }}
+                          >
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <span style={{ color: "#e6edf3", fontWeight: "500" }}>
+                            {p.symbol}
+                          </span>
+                        </td>
+                        <td style={{ ...S.td, textAlign: "right" }}>
+                          {fmtPrice(p.price_usd)}
+                        </td>
+                        <td
+                          style={{
+                            ...S.td,
+                            textAlign: "right",
+                            color: changeColor(p.price_change_24h),
+                            fontWeight: "600",
+                          }}
+                        >
+                          {p.price_change_24h > 0 ? "+" : ""}
+                          {fmt(p.price_change_24h)}%
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div
+                  style={{
+                    padding: "12px 16px",
+                    fontSize: "10px",
+                    color: "#4a6278",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  ↑ Click any row to view chart
+                </div>
               </div>
-            </>
+            )}
+          </div>
+
+          {/* ── AI Insights ── */}
+          <div style={S.sectionLabel}>AI Intelligence · Llama 3.3 via Groq</div>
+          {aiLoading ? (
+            <SkeletonAIPanel />
+          ) : aiSummary ? (
+            <div style={S.aiBox}>
+              <div style={S.cardTitle}>
+                <span>Daily Market Briefing</span>
+                <button
+                  style={S.symbolBtn}
+                  onClick={fetchAI}
+                  disabled={aiLoading}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = "#e6b450";
+                    e.target.style.borderColor = "#e6b450";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = "#7d9ab5";
+                    e.target.style.borderColor = "#2a3f55";
+                  }}
+                >
+                  {aiLoading ? "GENERATING..." : "↻ REGENERATE"}
+                </button>
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  gap: "20px",
+                }}
+              >
+                {/* Summary */}
+                <div>
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      letterSpacing: "2px",
+                      color: "#4a6278",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    SUMMARY
+                  </div>
+                  <p style={{ ...S.aiText, marginBottom: 0 }}>
+                    {aiSummary.summary}
+                  </p>
+                </div>
+                {/* Insights */}
+                <div>
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      letterSpacing: "2px",
+                      color: "#4a6278",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    KEY INSIGHTS
+                  </div>
+                  {aiSummary.insights?.map((ins, i) => (
+                    <div key={i} style={S.insightItem}>
+                      <div style={S.insightDot} />
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          color: "#8b949e",
+                          lineHeight: "1.6",
+                        }}
+                      >
+                        {ins}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {/* Recommendations */}
+                <div>
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      letterSpacing: "2px",
+                      color: "#4a6278",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    RECOMMENDATIONS
+                  </div>
+                  {aiSummary.recommendations?.map((rec, i) => (
+                    <div key={i} style={S.insightItem}>
+                      <div style={{ ...S.insightDot, background: "#58a6ff" }} />
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          color: "#8b949e",
+                          lineHeight: "1.6",
+                        }}
+                      >
+                        {rec}
+                      </span>
+                    </div>
+                  ))}
+                  {aiSummary.generated_at && (
+                    <div
+                      style={{
+                        marginTop: "16px",
+                        fontSize: "10px",
+                        color: "#4a6278",
+                      }}
+                    >
+                      Generated {warsawTime(aiSummary.generated_at)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div style={S.loader}>NO AI DATA</div>
           )}
+
+          {/* ── Footer ── */}
+          <div
+            style={{
+              marginTop: "32px",
+              paddingTop: "16px",
+              borderTop: "1px solid #1c2a3a",
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+              color: "#4a6278",
+              letterSpacing: "1px",
+            }}
+          >
+            <span>AI-POWERED BI DASHBOARD · TOMASZ SZOPA</span>
+            <span>
+              <span style={{ ...S.statusDot, background: "#3fb950" }} />
+              FASTAPI · N8N · POSTGRESQL · GROQ/LLAMA 3.3
+            </span>
+          </div>
         </main>
       </div>
     </>
