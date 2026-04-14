@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS news_articles (
     fetched_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_news_articles_url ON news_articles(url);
+
 CREATE TABLE IF NOT EXISTS stock_prices (
     id SERIAL PRIMARY KEY,
     symbol VARCHAR(10) NOT NULL,
