@@ -45,3 +45,73 @@ models:
         tests:
           - accepted_values:
               values: ["true", "false"]
+
+  - name: mart_weekly_summary
+    description: "Tygodniowe podsumowanie rynku - ceny BTC/ETH, liczba newsów, temperatura"
+    columns:
+      - name: week
+        description: "Tydzień (poniedziałek jako początek tygodnia)"
+        tests:
+          - unique
+          - not_null
+      - name: avg_btc_price
+        description: "Średnia cena BTC w danym tygodniu (USD)"
+      - name: avg_eth_price
+        description: "Średnia cena ETH w danym tygodniu (USD)"
+      - name: avg_market_change
+        description: "Średnia zmiana cen rynkowych w tygodniu (%)"
+      - name: total_news
+        description: "Łączna liczba artykułów w tygodniu"
+        tests:
+          - not_null
+      - name: avg_temperature
+        description: "Średnia temperatura w Warszawie w tygodniu (°C)"
+
+  - name: mart_news_correlation
+    description: "Korelacja między liczbą newsów a dziennymi zmianami cen BTC"
+    columns:
+      - name: date
+        description: "Data"
+        tests:
+          - unique
+          - not_null
+      - name: news_count
+        description: "Liczba artykułów w danym dniu"
+        tests:
+          - not_null
+      - name: btc_avg_price
+        description: "Średnia cena BTC w danym dniu (USD)"
+      - name: btc_daily_pct_change
+        description: "Dzienna procentowa zmiana ceny BTC (%)"
+
+  - name: mart_dq_trend
+    description: "Trend jakości danych - liczba błędów DQ w czasie"
+    columns:
+      - name: date
+        description: "Data wystąpienia błędu"
+        tests:
+          - not_null
+      - name: table_name
+        description: "Tabela w której wystąpił błąd"
+        tests:
+          - accepted_values:
+              values: ["crypto_prices", "weather_data", "news_articles"]
+      - name: failures_count
+        description: "Liczba błędów w danym dniu dla danej tabeli"
+      - name: auto_repaired_count
+        description: "Liczba błędów automatycznie naprawionych"
+
+  - name: mart_weather_crypto_correlation
+    description: "Korelacja między temperaturą a zmianami cen BTC"
+    columns:
+      - name: date
+        description: "Data"
+        tests:
+          - unique
+          - not_null
+      - name: avg_temperature
+        description: "Średnia temperatura w Warszawie (°C)"
+      - name: btc_avg_price
+        description: "Średnia cena BTC w danym dniu (USD)"
+      - name: btc_daily_pct_change
+        description: "Dzienna procentowa zmiana ceny BTC (%)"
