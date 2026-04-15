@@ -1,0 +1,1750 @@
+{
+    "description": "Cryptocurrency market metrics and trends",
+    "archived": false,
+    "view_count": 91,
+    "collection_position": null,
+    "dashcards": [
+        {
+            "size_x": 6,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": null,
+                "description": null,
+                "archived": false,
+                "view_count": 37,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "timestamptz",
+                        "semantic_type": "type/UpdatedTimestamp",
+                        "lib/deduplicated-name": "last_update",
+                        "lib/original-name": "last_update",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "last_update",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "last_update",
+                            {
+                                "base-type": "type/DateTimeWithLocalTZ"
+                            }
+                        ],
+                        "effective_type": "type/DateTimeWithLocalTZ",
+                        "lib/desired-column-alias": "last_update",
+                        "display_name": "last_update",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 1,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/DateTime": {
+                                    "earliest": "2026-04-14T18:41:16.901902Z",
+                                    "latest": "2026-04-14T18:41:16.901902Z"
+                                }
+                            }
+                        },
+                        "base_type": "type/DateTimeWithLocalTZ"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 198,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-07T18:00:17.717412Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT \n    MAX(timestamp) as last_update\nFROM crypto_prices"
+                        }
+                    ]
+                },
+                "id": 40,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "scalar",
+                "archived_directly": false,
+                "entity_id": "R8I2qKJwmrrUhlMmnjMnc",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "scalar.segments": []
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-07T18:00:17.717412Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-09T13:49:02.145336Z",
+            "col": 6,
+            "id": 37,
+            "parameter_mappings": [],
+            "card_id": 40,
+            "entity_id": "e2M7bVwtFD9I8C9ETLcbv",
+            "visualization_settings": {},
+            "size_y": 3,
+            "dashboard_id": 2,
+            "created_at": "2026-04-07T18:00:17.76567Z",
+            "row": 0
+        },
+        {
+            "size_x": 12,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": null,
+                "description": null,
+                "archived": false,
+                "view_count": 36,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "numeric",
+                        "semantic_type": "type/Share",
+                        "lib/deduplicated-name": "avg_change_percent",
+                        "lib/original-name": "avg_change_percent",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "avg_change_percent",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "avg_change_percent",
+                            {
+                                "base-type": "type/Decimal"
+                            }
+                        ],
+                        "effective_type": "type/Decimal",
+                        "lib/desired-column-alias": "avg_change_percent",
+                        "display_name": "avg_change_percent",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 1,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 2.75,
+                                    "q1": 2.75,
+                                    "q3": 2.75,
+                                    "max": 2.75,
+                                    "sd": null,
+                                    "avg": 2.75
+                                }
+                            }
+                        },
+                        "base_type": "type/Decimal"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 16,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-07T18:02:04.566705Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT \n    ROUND(AVG(price_change_24h)::numeric, 2) as avg_change_percent\nFROM crypto_prices \nWHERE timestamp > NOW() - INTERVAL '1 day'"
+                        }
+                    ]
+                },
+                "id": 41,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "gauge",
+                "archived_directly": false,
+                "entity_id": "pZyDcXhkY3QaLOHDVAyQb",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "gauge.segments": [
+                        {
+                            "min": 0,
+                            "max": -1.67,
+                            "color": "#E3595E",
+                            "label": ""
+                        },
+                        {
+                            "min": -1.67,
+                            "max": -3.34,
+                            "color": "#E8B921",
+                            "label": ""
+                        },
+                        {
+                            "min": -3.34,
+                            "max": -6.68,
+                            "color": "#689735",
+                            "label": ""
+                        }
+                    ]
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-07T18:02:04.566705Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-07T18:02:04.587295Z",
+            "col": 0,
+            "id": 38,
+            "parameter_mappings": [],
+            "card_id": 41,
+            "entity_id": "_cSfDnI8wangNb1Gam9p8",
+            "visualization_settings": {},
+            "size_y": 6,
+            "dashboard_id": 2,
+            "created_at": "2026-04-07T18:02:04.587295Z",
+            "row": 3
+        },
+        {
+            "size_x": 6,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": null,
+                "description": null,
+                "archived": false,
+                "view_count": 34,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "text",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "sentiment",
+                        "lib/original-name": "sentiment",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "sentiment",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "sentiment",
+                            {
+                                "base-type": "type/Text"
+                            }
+                        ],
+                        "effective_type": "type/Text",
+                        "lib/desired-column-alias": "sentiment",
+                        "display_name": "sentiment",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 1,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Text": {
+                                    "percent-json": 0.0,
+                                    "percent-url": 0.0,
+                                    "percent-email": 0.0,
+                                    "percent-state": 0.0,
+                                    "average-length": 10.0
+                                }
+                            }
+                        },
+                        "base_type": "type/Text"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 10,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-07T18:04:54.819162Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT \n    CASE \n        WHEN AVG(price_change_24h) > 1 THEN 'BULLISH 🐂'\n        WHEN AVG(price_change_24h) < -1 THEN 'BEARISH 🐻'\n        ELSE 'NEUTRAL ⚖️'\n    END as sentiment\nFROM crypto_prices \nWHERE timestamp > NOW() - INTERVAL '1 day'"
+                        }
+                    ]
+                },
+                "id": 43,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "scalar",
+                "archived_directly": false,
+                "entity_id": "adowb97CVSi7LggrdU5NG",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "scalar.segments": []
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-07T18:04:54.819162Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-07T18:04:54.83626Z",
+            "col": 0,
+            "id": 40,
+            "parameter_mappings": [],
+            "card_id": 43,
+            "entity_id": "Fzns-N3h5caX0k5dgjkI6",
+            "visualization_settings": {},
+            "size_y": 3,
+            "dashboard_id": 2,
+            "created_at": "2026-04-07T18:04:54.83626Z",
+            "row": 0
+        },
+        {
+            "size_x": 12,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": null,
+                "description": null,
+                "archived": false,
+                "view_count": 33,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "int8",
+                        "semantic_type": "type/Quantity",
+                        "lib/deduplicated-name": "anomaly_count",
+                        "lib/original-name": "anomaly_count",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "anomaly_count",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "anomaly_count",
+                            {
+                                "base-type": "type/BigInteger"
+                            }
+                        ],
+                        "effective_type": "type/BigInteger",
+                        "lib/desired-column-alias": "anomaly_count",
+                        "display_name": "anomaly_count",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 1,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 29.0,
+                                    "q1": 29.0,
+                                    "q3": 29.0,
+                                    "max": 29.0,
+                                    "sd": null,
+                                    "avg": 29.0
+                                }
+                            }
+                        },
+                        "base_type": "type/BigInteger"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 5,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-07T18:06:23.753032Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT \n    COUNT(*) as anomaly_count\nFROM ai_insights\nWHERE insight_type = 'price_anomaly'\n  AND generated_at > NOW() - INTERVAL '1 day'"
+                        }
+                    ]
+                },
+                "id": 44,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "gauge",
+                "archived_directly": false,
+                "entity_id": "JBUIwRIE8FP7toDPoooSJ",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "gauge.segments": [
+                        {
+                            "min": 0,
+                            "max": 11.5,
+                            "color": "#E3595E",
+                            "label": ""
+                        },
+                        {
+                            "min": 11.5,
+                            "max": 23,
+                            "color": "#E8B921",
+                            "label": ""
+                        },
+                        {
+                            "min": 23,
+                            "max": 46,
+                            "color": "#689735",
+                            "label": ""
+                        }
+                    ]
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-07T18:06:23.753032Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-09T13:47:57.498494Z",
+            "col": 12,
+            "id": 41,
+            "parameter_mappings": [],
+            "card_id": 44,
+            "entity_id": "At1qbmGz6vO863317ktnP",
+            "visualization_settings": {},
+            "size_y": 6,
+            "dashboard_id": 2,
+            "created_at": "2026-04-07T18:06:23.776534Z",
+            "row": 6
+        },
+        {
+            "size_x": 12,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": "2026-04-09T14:12:09.888091Z",
+                "description": null,
+                "archived": false,
+                "view_count": 33,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "date",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "date",
+                        "lib/original-name": "date",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "date",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "date",
+                            {
+                                "base-type": "type/Date"
+                            }
+                        ],
+                        "effective_type": "type/Date",
+                        "lib/desired-column-alias": "date",
+                        "display_name": "date",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 4,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/DateTime": {
+                                    "earliest": "2026-04-07",
+                                    "latest": "2026-04-14"
+                                }
+                            }
+                        },
+                        "base_type": "type/Date"
+                    },
+                    {
+                        "database_type": "numeric",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "btc",
+                        "lib/original-name": "btc",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "btc",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "btc",
+                            {
+                                "base-type": "type/Decimal"
+                            }
+                        ],
+                        "effective_type": "type/Decimal",
+                        "lib/desired-column-alias": "btc",
+                        "display_name": "btc",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 4,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 68514.78,
+                                    "q1": 70498.83,
+                                    "q3": 74505.79000000001,
+                                    "max": 75931.59,
+                                    "sd": 3054.747590587477,
+                                    "avg": 72502.31
+                                }
+                            }
+                        },
+                        "base_type": "type/Decimal"
+                    },
+                    {
+                        "database_type": "numeric",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "eth",
+                        "lib/original-name": "eth",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "eth",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "eth",
+                            {
+                                "base-type": "type/Decimal"
+                            }
+                        ],
+                        "effective_type": "type/Decimal",
+                        "lib/desired-column-alias": "eth",
+                        "display_name": "eth",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 4,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 2090.82,
+                                    "q1": 2159.025,
+                                    "q3": 2326.0,
+                                    "max": 2403.3,
+                                    "sd": 127.97795991888604,
+                                    "avg": 2242.5125
+                                }
+                            }
+                        },
+                        "base_type": "type/Decimal"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 46,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-09T14:12:09.871976Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT \n    DATE(timestamp AT TIME ZONE 'Europe/Warsaw') as date,\n    MAX(CASE WHEN symbol = 'BTC' THEN price_usd END) as BTC,\n    MAX(CASE WHEN symbol = 'ETH' THEN price_usd END) as ETH\nFROM crypto_prices\nWHERE timestamp > NOW() - INTERVAL '7 days'\nGROUP BY DATE(timestamp AT TIME ZONE 'Europe/Warsaw')\nORDER BY date"
+                        }
+                    ]
+                },
+                "id": 45,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "combo",
+                "archived_directly": false,
+                "entity_id": "Fzr-26WSJ3bsI-33GcWz-",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "graph.x_axis.scale": "timeseries",
+                    "graph.dimensions": [
+                        "date"
+                    ],
+                    "graph.metrics": [
+                        "btc",
+                        "eth"
+                    ]
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-07T18:07:18.529376Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-07T18:07:18.547742Z",
+            "col": 0,
+            "id": 42,
+            "parameter_mappings": [],
+            "card_id": 45,
+            "entity_id": "TFP5pbhQYpB7e_vQGIbq8",
+            "visualization_settings": {},
+            "size_y": 6,
+            "dashboard_id": 2,
+            "created_at": "2026-04-07T18:07:18.547742Z",
+            "row": 9
+        },
+        {
+            "size_x": 12,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": null,
+                "description": null,
+                "archived": false,
+                "view_count": 32,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "varchar",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "symbol",
+                        "lib/original-name": "symbol",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "symbol",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "symbol",
+                            {
+                                "base-type": "type/Text"
+                            }
+                        ],
+                        "effective_type": "type/Text",
+                        "lib/desired-column-alias": "symbol",
+                        "display_name": "symbol",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 5,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Text": {
+                                    "percent-json": 0.0,
+                                    "percent-url": 0.0,
+                                    "percent-email": 0.0,
+                                    "percent-state": 0.0,
+                                    "average-length": 3.2
+                                }
+                            }
+                        },
+                        "base_type": "type/Text"
+                    },
+                    {
+                        "database_type": "numeric",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "price_usd",
+                        "lib/original-name": "price_usd",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "price_usd",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "price_usd",
+                            {
+                                "base-type": "type/Decimal"
+                            }
+                        ],
+                        "effective_type": "type/Decimal",
+                        "lib/desired-column-alias": "price_usd",
+                        "display_name": "price_usd",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 10,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 0.09383,
+                                    "q1": 1.3582,
+                                    "q3": 2326.92,
+                                    "max": 74276.0,
+                                    "sd": 31067.691860745083,
+                                    "avg": 15333.109417
+                                }
+                            }
+                        },
+                        "base_type": "type/Decimal"
+                    },
+                    {
+                        "database_type": "numeric",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "price_change_24h",
+                        "lib/original-name": "price_change_24h",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "price_change_24h",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "price_change_24h",
+                            {
+                                "base-type": "type/Decimal"
+                            }
+                        ],
+                        "effective_type": "type/Decimal",
+                        "lib/desired-column-alias": "price_change_24h",
+                        "display_name": "price_change_24h",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 10,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 1.47,
+                                    "q1": 1.77,
+                                    "q3": 2.7,
+                                    "max": 4.47,
+                                    "sd": 1.073879778084017,
+                                    "avg": 2.568
+                                }
+                            }
+                        },
+                        "base_type": "type/Decimal"
+                    },
+                    {
+                        "database_type": "int8",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "volume_24h",
+                        "lib/original-name": "volume_24h",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "volume_24h",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "volume_24h",
+                            {
+                                "base-type": "type/BigInteger"
+                            }
+                        ],
+                        "effective_type": "type/BigInteger",
+                        "lib/desired-column-alias": "volume_24h",
+                        "display_name": "volume_24h",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 10,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 1.46684649E8,
+                                    "q1": 1.73629465E8,
+                                    "q3": 1.513707111E9,
+                                    "max": 2.35674543E9,
+                                    "sd": 9.304153388316246E8,
+                                    "avg": 9.080442368E8
+                                }
+                            }
+                        },
+                        "base_type": "type/BigInteger"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 23,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-07T18:08:17.163021Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT \n    symbol,\n    price_usd,\n    price_change_24h,\n    volume_24h\nFROM crypto_prices\nWHERE timestamp IN (\n    SELECT MAX(timestamp) \n    FROM crypto_prices \n    GROUP BY symbol\n)\nORDER BY volume_24h DESC\nLIMIT 10"
+                        }
+                    ]
+                },
+                "id": 46,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "bar",
+                "archived_directly": false,
+                "entity_id": "yNOUS74ZUmfHrR5s0SW6V",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "graph.x_axis.scale": "ordinal",
+                    "graph.dimensions": [
+                        "symbol"
+                    ],
+                    "graph.metrics": [
+                        "price_usd",
+                        "price_change_24h",
+                        "volume_24h"
+                    ]
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-07T18:08:17.163021Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-09T13:47:57.498494Z",
+            "col": 12,
+            "id": 43,
+            "parameter_mappings": [],
+            "card_id": 46,
+            "entity_id": "-ORUT6zu9rM6wVXEeCC2d",
+            "visualization_settings": {},
+            "size_y": 6,
+            "dashboard_id": 2,
+            "created_at": "2026-04-07T18:08:17.212466Z",
+            "row": 12
+        },
+        {
+            "size_x": 12,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": "2026-04-07T19:01:40.477612Z",
+                "description": null,
+                "archived": false,
+                "view_count": 29,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "date",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "date",
+                        "lib/original-name": "date",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "date",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "date",
+                            {
+                                "base-type": "type/Date"
+                            }
+                        ],
+                        "effective_type": "type/Date",
+                        "lib/desired-column-alias": "date",
+                        "display_name": "date",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 4,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/DateTime": {
+                                    "earliest": "2026-04-07",
+                                    "latest": "2026-04-14"
+                                }
+                            }
+                        },
+                        "base_type": "type/Date"
+                    },
+                    {
+                        "database_type": "int8",
+                        "semantic_type": "type/Quantity",
+                        "lib/deduplicated-name": "anomaly_count",
+                        "lib/original-name": "anomaly_count",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "anomaly_count",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "anomaly_count",
+                            {
+                                "base-type": "type/BigInteger"
+                            }
+                        ],
+                        "effective_type": "type/BigInteger",
+                        "lib/desired-column-alias": "anomaly_count",
+                        "display_name": "anomaly_count",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 3,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 2.0,
+                                    "q1": 2.0,
+                                    "q3": 19.0,
+                                    "max": 29.0,
+                                    "sd": 12.767145334803704,
+                                    "avg": 10.5
+                                }
+                            }
+                        },
+                        "base_type": "type/BigInteger"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 7,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-07T19:01:40.467933Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "native": "SELECT \n    DATE(generated_at AT TIME ZONE 'Europe/Warsaw') as date,\n    COUNT(*) as anomaly_count\nFROM ai_insights\nWHERE insight_type = 'price_anomaly'\n  AND generated_at > NOW() - INTERVAL '7 days'\nGROUP BY DATE(generated_at AT TIME ZONE 'Europe/Warsaw')\nORDER BY date",
+                            "lib/type": "mbql.stage/native"
+                        }
+                    ]
+                },
+                "id": 49,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "bar",
+                "archived_directly": false,
+                "entity_id": "n0YAWWenmAoSvivqylywW",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "graph.x_axis.scale": "timeseries",
+                    "graph.dimensions": [
+                        "date"
+                    ],
+                    "graph.metrics": [
+                        "anomaly_count"
+                    ]
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-07T18:25:47.631584Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-07T18:25:47.651589Z",
+            "col": 0,
+            "id": 46,
+            "parameter_mappings": [],
+            "card_id": 49,
+            "entity_id": "wXOd646HoIKWFLQm7-vmd",
+            "visualization_settings": {},
+            "size_y": 6,
+            "dashboard_id": 2,
+            "created_at": "2026-04-07T18:25:47.651589Z",
+            "row": 15
+        },
+        {
+            "size_x": 24,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": null,
+                "description": null,
+                "archived": false,
+                "view_count": 26,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "timestamptz",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "detected_at",
+                        "lib/original-name": "detected_at",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "detected_at",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "detected_at",
+                            {
+                                "base-type": "type/DateTimeWithLocalTZ"
+                            }
+                        ],
+                        "effective_type": "type/DateTimeWithLocalTZ",
+                        "lib/desired-column-alias": "detected_at",
+                        "display_name": "detected_at",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 5,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/DateTime": {
+                                    "earliest": "2026-04-14T17:06:12.930989Z",
+                                    "latest": "2026-04-14T18:41:18.020198Z"
+                                }
+                            }
+                        },
+                        "base_type": "type/DateTimeWithLocalTZ"
+                    },
+                    {
+                        "database_type": "text",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "symbols",
+                        "lib/original-name": "symbols",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "symbols",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "symbols",
+                            {
+                                "base-type": "type/Text"
+                            }
+                        ],
+                        "effective_type": "type/Text",
+                        "lib/desired-column-alias": "symbols",
+                        "display_name": "symbols",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 1,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Text": {
+                                    "percent-json": 1.0,
+                                    "percent-url": 0.0,
+                                    "percent-email": 0.0,
+                                    "percent-state": 0.0,
+                                    "average-length": 14.0
+                                }
+                            }
+                        },
+                        "base_type": "type/Text"
+                    },
+                    {
+                        "database_type": "text",
+                        "semantic_type": "type/Category",
+                        "lib/deduplicated-name": "alert_type",
+                        "lib/original-name": "alert_type",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "alert_type",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "alert_type",
+                            {
+                                "base-type": "type/Text"
+                            }
+                        ],
+                        "effective_type": "type/Text",
+                        "lib/desired-column-alias": "alert_type",
+                        "display_name": "alert_type",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 1,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Text": {
+                                    "percent-json": 0.0,
+                                    "percent-url": 0.0,
+                                    "percent-email": 0.0,
+                                    "percent-state": 0.0,
+                                    "average-length": 13.0
+                                }
+                            }
+                        },
+                        "base_type": "type/Text"
+                    },
+                    {
+                        "database_type": "text",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "explanation",
+                        "lib/original-name": "explanation",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "explanation",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "explanation",
+                            {
+                                "base-type": "type/Text"
+                            }
+                        ],
+                        "effective_type": "type/Text",
+                        "lib/desired-column-alias": "explanation",
+                        "display_name": "explanation",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 5,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Text": {
+                                    "percent-json": 0.0,
+                                    "percent-url": 0.0,
+                                    "percent-email": 0.0,
+                                    "percent-state": 0.0,
+                                    "average-length": 200.0
+                                }
+                            }
+                        },
+                        "base_type": "type/Text"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 9,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-07T18:30:38.083158Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT \n    generated_at as detected_at,\n    content->>'affected_symbols' as symbols,\n    content->>'alert_type' as alert_type,\n    LEFT(content->>'detailed_explanations', 200) as explanation\nFROM ai_insights\nWHERE insight_type = 'price_anomaly'\nORDER BY generated_at DESC\nLIMIT 5"
+                        }
+                    ]
+                },
+                "id": 50,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "table",
+                "archived_directly": false,
+                "entity_id": "nzwOkrqNpDDfLM443zjZn",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "table.columns": [
+                        {
+                            "name": "Admin",
+                            "enabled": true
+                        },
+                        {
+                            "name": "Admin",
+                            "enabled": true
+                        },
+                        {
+                            "name": "Admin",
+                            "enabled": false
+                        },
+                        {
+                            "name": "Admin",
+                            "enabled": true
+                        }
+                    ],
+                    "table.pivot_column": "alert_type",
+                    "table.cell_column": "explanation",
+                    "column_settings": {
+                        "[\"name\",\"detected_at\"]": {
+                            "time_enabled": "minutes",
+                            "time_style": "HH:mm",
+                            "date_style": "D MMMM, YYYY",
+                            "view_as": null,
+                            "text_align": "middle"
+                        },
+                        "[\"name\",\"symbols\"]": {
+                            "text_align": "middle",
+                            "view_as": null,
+                            "text_wrapping": true
+                        },
+                        "[\"name\",\"explanation\"]": {
+                            "view_as": null,
+                            "text_align": "left",
+                            "text_wrapping": true
+                        }
+                    }
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-07T18:30:38.083158Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-09T13:49:02.145336Z",
+            "col": 0,
+            "id": 47,
+            "parameter_mappings": [],
+            "card_id": 50,
+            "entity_id": "AQhDbgV_29VUSZUx-kPLf",
+            "visualization_settings": {
+                "table.columns": [
+                    {
+                        "name": "Admin",
+                        "enabled": true
+                    },
+                    {
+                        "name": "Admin",
+                        "enabled": true
+                    },
+                    {
+                        "name": "Admin",
+                        "enabled": false
+                    },
+                    {
+                        "name": "Admin",
+                        "enabled": true
+                    }
+                ],
+                "table.pivot_column": "alert_type",
+                "table.cell_column": "explanation",
+                "column_settings": {
+                    "[\"name\",\"detected_at\"]": {
+                        "time_enabled": "minutes",
+                        "time_style": "HH:mm",
+                        "date_style": "D MMMM, YYYY",
+                        "view_as": null,
+                        "text_align": "middle"
+                    },
+                    "[\"name\",\"symbols\"]": {
+                        "text_align": "middle",
+                        "view_as": null,
+                        "text_wrapping": true
+                    },
+                    "[\"name\",\"explanation\"]": {
+                        "view_as": null,
+                        "text_align": "middle",
+                        "text_wrapping": true
+                    }
+                }
+            },
+            "size_y": 12,
+            "dashboard_id": 2,
+            "created_at": "2026-04-07T18:30:38.11056Z",
+            "row": 21
+        },
+        {
+            "size_x": 6,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": null,
+                "description": null,
+                "archived": false,
+                "view_count": 22,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "int8",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "total_failures",
+                        "lib/original-name": "total_failures",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "total_failures",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "total_failures",
+                            {
+                                "base-type": "type/BigInteger"
+                            }
+                        ],
+                        "effective_type": "type/BigInteger",
+                        "lib/desired-column-alias": "total_failures",
+                        "display_name": "total_failures",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 1,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 1.0,
+                                    "q1": 1.0,
+                                    "q3": 1.0,
+                                    "max": 1.0,
+                                    "sd": null,
+                                    "avg": 1.0
+                                }
+                            }
+                        },
+                        "base_type": "type/BigInteger"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 14,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-07T18:58:46.136464Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT\n    COUNT(*) as total_failures\nFROM ai_insights\nWHERE insight_type = 'dq_failure'"
+                        }
+                    ]
+                },
+                "id": 52,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "scalar",
+                "archived_directly": false,
+                "entity_id": "sqe8ClNy3aOFLvA7ujxx1",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "scalar.segments": []
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-07T18:58:46.136464Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-09T13:47:57.498494Z",
+            "col": 12,
+            "id": 49,
+            "parameter_mappings": [],
+            "card_id": 52,
+            "entity_id": "dpr0gMvZ81vE_DDSrsaH4",
+            "visualization_settings": {},
+            "size_y": 3,
+            "dashboard_id": 2,
+            "created_at": "2026-04-07T18:58:46.157824Z",
+            "row": 3
+        },
+        {
+            "size_x": 6,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": null,
+                "description": null,
+                "archived": false,
+                "view_count": 10,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "numeric",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "minutes_ago",
+                        "lib/original-name": "minutes_ago",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "minutes_ago",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "minutes_ago",
+                            {
+                                "base-type": "type/Decimal"
+                            }
+                        ],
+                        "effective_type": "type/Decimal",
+                        "lib/desired-column-alias": "minutes_ago",
+                        "display_name": "minutes_ago",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 1,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 1.5378340833333333,
+                                    "q1": 1.5378340833333333,
+                                    "q3": 1.5378340833333333,
+                                    "max": 1.5378340833333333,
+                                    "sd": null,
+                                    "avg": 1.5378340833333333
+                                }
+                            }
+                        },
+                        "base_type": "type/Decimal"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 12,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-09T13:47:14.508069Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT \n    EXTRACT(EPOCH FROM (NOW() - last_successful_ts)) / 60 AS minutes_ago\nFROM dq_metadata\nWHERE table_name = 'crypto_prices'"
+                        }
+                    ]
+                },
+                "id": 53,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "scalar",
+                "archived_directly": false,
+                "entity_id": "1ZUGBlb1n7VKvjE5U1Nhs",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "scalar.segments": []
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-09T13:47:14.508069Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-09T13:49:02.145336Z",
+            "col": 12,
+            "id": 50,
+            "parameter_mappings": [],
+            "card_id": 53,
+            "entity_id": "9N4TAxhAQr-OyiJ6dS-Te",
+            "visualization_settings": {},
+            "size_y": 3,
+            "dashboard_id": 2,
+            "created_at": "2026-04-09T13:47:14.556254Z",
+            "row": 0
+        },
+        {
+            "size_x": 6,
+            "dashboard_tab_id": null,
+            "series": [],
+            "inline_parameters": [],
+            "action_id": null,
+            "collection_authority_level": null,
+            "card": {
+                "cache_invalidated_at": null,
+                "description": null,
+                "archived": false,
+                "view_count": 9,
+                "collection_position": null,
+                "source_card_id": null,
+                "table_id": null,
+                "result_metadata": [
+                    {
+                        "database_type": "int4",
+                        "semantic_type": null,
+                        "lib/deduplicated-name": "rows_inserted",
+                        "lib/original-name": "rows_inserted",
+                        "name": "Admin",
+                        "lib/source": "source/native",
+                        "lib/source-column-alias": "rows_inserted",
+                        "source": "native",
+                        "field_ref": [
+                            "field",
+                            "rows_inserted",
+                            {
+                                "base-type": "type/Integer"
+                            }
+                        ],
+                        "effective_type": "type/Integer",
+                        "lib/desired-column-alias": "rows_inserted",
+                        "display_name": "rows_inserted",
+                        "fingerprint": {
+                            "global": {
+                                "distinct-count": 1,
+                                "nil%": 0.0
+                            },
+                            "type": {
+                                "type/Number": {
+                                    "min": 20.0,
+                                    "q1": 20.0,
+                                    "q3": 20.0,
+                                    "max": 20.0,
+                                    "sd": null,
+                                    "avg": 20.0
+                                }
+                            }
+                        },
+                        "base_type": "type/Integer"
+                    }
+                ],
+                "embedding_type": null,
+                "dependency_analysis_version": 0,
+                "initially_published_at": null,
+                "can_write": true,
+                "card_schema": 23,
+                "database_id": 2,
+                "enable_embedding": false,
+                "collection_id": null,
+                "query_type": "native",
+                "download_perms": "full",
+                "name": "Admin",
+                "document_id": null,
+                "last_used_at": "2026-04-14T18:41:59.466776Z",
+                "type": "question",
+                "query_average_duration": 14,
+                "creator_id": 1,
+                "moderation_reviews": [],
+                "updated_at": "2026-04-09T13:48:44.809632Z",
+                "made_public_by_id": null,
+                "embedding_params": null,
+                "cache_ttl": null,
+                "dataset_query": {
+                    "lib/type": "mbql/query",
+                    "database": 2,
+                    "stages": [
+                        {
+                            "lib/type": "mbql.stage/native",
+                            "native": "SELECT rows_inserted\nFROM dq_metadata\nWHERE table_name = 'crypto_prices'"
+                        }
+                    ]
+                },
+                "id": 54,
+                "legacy_query": null,
+                "parameter_mappings": [],
+                "display": "scalar",
+                "archived_directly": false,
+                "entity_id": "rvFDbr22lpuSAxhxkdOIJ",
+                "collection_preview": true,
+                "visualization_settings": {
+                    "scalar.segments": []
+                },
+                "metabase_version": "v0.59.4.3 (b1f2680)",
+                "parameters": [],
+                "dashboard_id": 2,
+                "created_at": "2026-04-09T13:48:44.809632Z",
+                "public_uuid": null
+            },
+            "updated_at": "2026-04-09T13:49:02.145336Z",
+            "col": 18,
+            "id": 51,
+            "parameter_mappings": [],
+            "card_id": 54,
+            "entity_id": "hi7oW8d5DSyaXlr9_DhU0",
+            "visualization_settings": {},
+            "size_y": 3,
+            "dashboard_id": 2,
+            "created_at": "2026-04-09T13:48:44.8436Z",
+            "row": 0
+        }
+    ],
+    "embedding_type": null,
+    "dependency_analysis_version": 0,
+    "initially_published_at": null,
+    "can_write": true,
+    "can_set_cache_policy": true,
+    "tabs": [],
+    "enable_embedding": false,
+    "collection_id": null,
+    "show_in_getting_started": false,
+    "name": "Admin",
+    "is_remote_synced": false,
+    "width": "fixed",
+    "caveats": null,
+    "collection_authority_level": null,
+    "creator_id": 1,
+    "can_restore": false,
+    "moderation_reviews": [],
+    "updated_at": "2026-04-07T19:11:16.181932Z",
+    "made_public_by_id": 1,
+    "embedding_params": null,
+    "cache_ttl": null,
+    "last_used_param_values": {},
+    "id": 2,
+    "last_viewed_at": "2026-04-14T18:41:59.389487Z",
+    "position": null,
+    "archived_directly": false,
+    "entity_id": "b34M1QVV7XdqoI-Z9M6ky",
+    "param_fields": {},
+    "last-edit-info": {
+        "id": 1,
+        "email": "admin@dashboard.local",
+        "first_name": "Admin",
+        "last_name": "User",
+        "timestamp": "2026-04-09T13:49:02.294213Z"
+    },
+    "collection": {
+        "metabase.collections.models.collection.root/is-root?": true,
+        "authority_level": null,
+        "name": "Admin",
+        "is_personal": false,
+        "id": "root",
+        "is_remote_synced": false,
+        "can_write": true
+    },
+    "parameters": [],
+    "auto_apply_filters": true,
+    "created_at": "2026-04-07T17:53:39.309183Z",
+    "public_uuid": "949b1cf2-a7f2-445c-a2a8-c94c78a16d70",
+    "points_of_interest": null,
+    "can_delete": false
+}
