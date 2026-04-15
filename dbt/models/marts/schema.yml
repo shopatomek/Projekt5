@@ -11,21 +11,37 @@ models:
           - not_null
       - name: btc_avg_price
         description: "Średnia cena BTC w USD"
-        # tests:
-        #   - not_null
+        tests:
+          - not_null
       - name: eth_avg_price
         description: "Średnia cena ETH w USD"
+      - name: avg_price_change
+        description: "Średnia zmiana cen w ciągu 24h (%)"
+      - name: active_coins
+        description: "Liczba aktywnych kryptowalut"
       - name: news_count
         description: "Liczba artykułów danego dnia"
         tests:
           - not_null
+      - name: avg_temperature
+        description: "Średnia temperatura w Warszawie (°C)"
 
   - name: mart_dq_failures
     description: "Błędy jakości danych z ai_insights"
     columns:
       - name: date
         description: "Data wystąpienia błędu"
+        tests:
+          - not_null
       - name: table_name
         description: "Tabela w której wystąpił błąd"
+        tests:
+          - accepted_values:
+              values: ["crypto_prices", "weather_data", "news_articles"]
       - name: failed_checks
         description: "Lista reguł które nie przeszły walidacji"
+      - name: auto_repaired
+        description: "Czy błąd został automatycznie naprawiony"
+        tests:
+          - accepted_values:
+              values: ["true", "false"]
