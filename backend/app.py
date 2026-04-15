@@ -7,6 +7,7 @@ from typing import Any, Tuple, List
 from collections import Counter
 import os
 import httpx
+import logging
 from database import execute_query
 from analytics import calculate_crypto_kpis, calculate_stock_kpis
 from ai_insights import generate_daily_summary, analyze_trend, explain_anomaly
@@ -14,6 +15,9 @@ from scheduler import run_scheduler
 from data_quality.engine import engine
 from pydantic import BaseModel
 
+# Konfiguracja logowania
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # Modele Pydantic dla nowych endpointów
@@ -32,7 +36,7 @@ class AnomalyRequest(BaseModel):
 # =============================================================================
 async def fetch_initial_news_and_weather():
     """Pobiera newsy i pogodę natychmiast po starcie backendu."""
-    print("🌐 Pobieranie początkowych danych (newsy, pogoda)...")
+    logger.info("🌐 Fetching initial data (news, weather)...")
 
     # 1. Newsy z BBC RSS
     try:
@@ -67,9 +71,9 @@ async def fetch_initial_news_and_weather():
                     {"title": title, "description": description, "url": link, "published_at": pub_date},
                 )
                 count += 1
-            print(f"✅ Dodano {count} artykułów")
+            logger.info(f"✅ Added {count} news articles")
     except Exception as e:
-        print(f"❌ Błąd pobierania newsów: {e}")
+        logger.error(f"❌ Failed to fetch news: {e}")
 
     # 2. Pogoda z Open-Meteo
     try:
@@ -106,9 +110,9 @@ async def fetch_initial_news_and_weather():
                 """,
                 {"temperature": temp, "humidity": humidity, "weather_condition": condition},
             )
-            print(f"✅ Dodano pogodę: {temp}°C, {condition}")
+            logger.info(f"✅ Added weather: {temp}°C, {condition}")
     except Exception as e:
-        print(f"❌ Błąd pobierania pogody: {e}")
+        logger.error(f"❌ Failed to fetch weather: {e}")
 
     # 3. Daily Summary (tylko jeśli są dane)
     try:
@@ -139,9 +143,9 @@ async def fetch_initial_news_and_weather():
                 """,
                 {"content": json.dumps(summary)},  # <-- kluczowa zmiana
             )
-            print("✅ Wygenerowano Daily Summary")
+            logger.info("✅ Generated Daily Summary")
     except Exception as e:
-        print(f"❌ Błąd generowania Daily Summary: {e}")
+        logger.error(f"❌ Failed to generate Daily Summary: {e}")
 
 
 @asynccontextmanager

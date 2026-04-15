@@ -17,9 +17,14 @@
 
 import asyncio
 import httpx
+import logging
 from datetime import datetime
 from database import execute_query
 from data_quality.engine import engine
+
+# Konfiguracja logowania
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+logger = logging.getLogger(__name__)
 
 BINANCE_URL = "https://api.binance.com/api/v3/ticker/24hr"
 
@@ -94,16 +99,17 @@ async def fetch_and_store_crypto():
         status_msg = f"[{datetime.now().strftime('%H:%M:%S')}] Binance: {len(clean_records)} rekordów"
         if dq_failures:
             status_msg += f" | ⚠️ DQ failures: {dq_failures}"
-        print(status_msg)
+        logger.info(status_msg)
 
         return {"status": "ok", "count": len(clean_records), "dq_failures": dq_failures}
 
     except Exception as e:
-        print(f"Błąd fetch_and_store_crypto: {e}")
+        logger.error(f"Failed to fetch and store crypto: {e}")
         return {"status": "error", "message": str(e)}
 
 
 async def run_scheduler():
+    logger.info("Scheduler started - fetching crypto data every 5 minutes")
     while True:
         await fetch_and_store_crypto()
         await asyncio.sleep(300)
