@@ -572,7 +572,95 @@ async def search_news(q: str = Query(..., min_length=2), limit: int = 5):
     }
 
 
-if __name__ == "__main__":
-    import uvicorn
+# =============================================================================
+# RAG ENDPOINTS
+# =============================================================================
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+@app.post("/api/rag/embed-existing")
+async def embed_existing():
+    """Jednorazowy endpoint do generowania embeddingów dla istniejących artykułów."""
+    from embeddings import embed_existing_articles
+
+    try:
+        embed_existing_articles()
+        return {"status": "success", "message": "Embeddings generated for existing articles"}
+    except Exception as e:
+        logger.error(f"Failed to generate embeddings: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/rag/query")
+async def rag_query(request: dict):
+    from embeddings import generate_embedding
+    from groq import Groq
+    import os
+
+    question = request.get("question", "")
+    limit = min(request.get("limit", 5), 10)
+
+    if not question:
+        raise HTTPException(status_code=400, detail="Missing 'question' field")
+
+    # 1. Generuj embedding dla pytania
+    try:
+        q_embedding = generate_embedding(question)
+    except Exception as e:
+        logger.error(f"Failed to generate embedding: {e}")
+        raise HTTPException(status_code=500, detail="Embedding generation failed")
+
+    # 2. Konwersja listy na string w formacie PostgreSQL: '[0.1,0.2,0.3,...]'
+    embedding_str = "[" + ",".join(str(x) for x in q_embedding) + "]"
+
+    # 3. Wyszukiwanie podobnych artykułów (używamy CAST zamiast ::)
+    similar_articles = execute_query(
+        """
+        SELECT 
+            id, title, description, source, url, published_at,
+            1 - (embedding <=> CAST(:embedding AS vector)) as similarity
+        FROM news_articles
+        WHERE embedding IS NOT NULL
+        ORDER BY embedding <=> CAST(:embedding AS vector)
+        LIMIT :limit
+        """,
+        {"embedding": embedding_str, "limit": limit},
+    )
+
+    if not similar_articles:
+        return {"question": question, "answer": "Nie znaleziono artykułów związanych z tym pytaniem.", "sources": []}
+
+    # 4. Budowanie kontekstu dla LLM
+    context = "\n\n".join([f"Źródło {i+1}: {a['title']}\n{a.get('description', '')[:500]}" for i, a in enumerate(similar_articles)])
+
+    # 5. Wywołanie Groq
+    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    prompt = f"""Jesteś asystentem analizującym artykuły biznesowe BBC.
+Na podstawie poniższych artykułów odpowiedz na pytanie użytkownika.
+Jeśli nie możesz znaleźć odpowiedzi, napisz "Brak informacji w dostępnych artykułach".
+
+ARTYKUŁY:
+{context}
+
+PYTANIE: {question}
+
+ODPOWIEDŹ (krótko, konkretnie, cytuj źródła jeśli to możliwe):"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=500,
+        )
+        content = response.choices[0].message.content
+        answer = content.strip() if content else "No answer generated."
+    except Exception as e:
+        logger.error(f"Groq API error: {e}")
+        answer = f"Błąd AI: {str(e)}"
+
+    # 6. Zwróć odpowiedź wraz ze źródłami
+    return {
+        "question": question,
+        "answer": answer,
+        "sources": [{"title": a["title"], "url": a["url"], "published_at": a["published_at"], "similarity": round(a["similarity"], 3)} for a in similar_articles],
+    }

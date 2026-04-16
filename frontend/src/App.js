@@ -1078,6 +1078,28 @@ export default function App() {
   const [aiLoading, setAiLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
 
+  // ─── RAG States ───────────────────────────────────────────────────────────────
+  const [ragQuestion, setRagQuestion] = useState("");
+  const [ragAnswer, setRagAnswer] = useState(null);
+  const [ragLoading, setRagLoading] = useState(false);
+
+  const askRAG = useCallback(async () => {
+    if (!ragQuestion.trim()) return;
+    setRagLoading(true);
+    try {
+      const response = await axios.post(`${API}/api/rag/query`, {
+        question: ragQuestion,
+        limit: 5,
+      });
+      setRagAnswer(response.data);
+    } catch (error) {
+      console.error("RAG error:", error);
+      setRagAnswer({ answer: "Error: " + error.message });
+    } finally {
+      setRagLoading(false);
+    }
+  }, [ragQuestion]);
+
   const fetchOverview = useCallback(async () => {
     try {
       const r = await axios.get(`${API}/api/dashboard/overview`);
@@ -1549,7 +1571,99 @@ export default function App() {
           ) : (
             <div style={S.loader}>NO AI DATA</div>
           )}
-
+          {/* ── RAG Question Answering ── */}
+          <div style={S.sectionLabel}>Ask AI about News</div>
+          <div style={S.aiBox}>
+            <div style={{ display: "flex", gap: "12px", marginBottom: "16px" }}>
+              <input
+                type="text"
+                value={ragQuestion}
+                onChange={(e) => setRagQuestion(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && askRAG()}
+                placeholder="Ask about inflation, Bitcoin, economy..."
+                style={{
+                  flex: 1,
+                  background: "#080c14",
+                  border: "1px solid #2a3f55",
+                  borderRadius: "8px",
+                  padding: "12px 16px",
+                  color: "#c9d1d9",
+                  fontSize: "13px",
+                  fontFamily: "'DM Mono', monospace",
+                }}
+              />
+              <button
+                onClick={askRAG}
+                disabled={ragLoading}
+                style={{
+                  background: "#1c2a3a",
+                  border: "1px solid #e6b450",
+                  borderRadius: "8px",
+                  padding: "12px 24px",
+                  color: "#e6b450",
+                  cursor: "pointer",
+                  fontFamily: "'DM Mono', monospace",
+                  fontWeight: "700",
+                }}
+              >
+                {ragLoading ? "..." : "ASK AI"}
+              </button>
+            </div>
+            {ragAnswer && (
+              <div>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#e6b450",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Answer:
+                </div>
+                <div
+                  style={{
+                    fontSize: "13px",
+                    lineHeight: "1.6",
+                    color: "#8b949e",
+                    marginBottom: "12px",
+                  }}
+                >
+                  {ragAnswer.answer}
+                </div>
+                {ragAnswer.sources && ragAnswer.sources.length > 0 && (
+                  <div>
+                    <div
+                      style={{
+                        fontSize: "10px",
+                        color: "#4a6278",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      Sources:
+                    </div>
+                    {ragAnswer.sources.map((src, i) => (
+                      <div
+                        key={i}
+                        style={{ fontSize: "11px", marginBottom: "4px" }}
+                      >
+                        <a
+                          href={src.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "#58a6ff" }}
+                        >
+                          {src.title}
+                        </a>
+                        <span style={{ color: "#4a6278", marginLeft: "8px" }}>
+                          (similarity: {src.similarity})
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           {/* ── Footer ── */}
           <div
             style={{

@@ -1,6 +1,7 @@
 -- =============================================================================
--- TABLES
+-- EXTENSIONS
 -- =============================================================================
+CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TABLE IF NOT EXISTS crypto_prices (
     id SERIAL PRIMARY KEY,
@@ -30,7 +31,8 @@ CREATE TABLE IF NOT EXISTS news_articles (
     source VARCHAR(100),
     url TEXT,
     published_at TIMESTAMPTZ,
-    fetched_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    fetched_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    embedding vector(384)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_news_articles_url ON news_articles(url);
@@ -187,3 +189,10 @@ GROUP BY
     content->>'table',
     content->'failed_checks'->>0
 ORDER BY date DESC, failure_count DESC;
+
+-- =============================================================================
+-- VECTOR INDEX for RAG (semantic search)
+-- =============================================================================
+
+-- Indeks dla wyszukiwania wektorowego (HNSW = szybsze niż IVFFlat)
+CREATE INDEX IF NOT EXISTS idx_news_articles_embedding ON news_articles USING hnsw (embedding vector_cosine_ops);
