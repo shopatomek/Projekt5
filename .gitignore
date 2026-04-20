@@ -47,7 +47,6 @@ Thumbs.db
 # --- Docker ---
 # Logi kontenerów, jeśli są zapisywane do plików w projekcie
 *.log
-*.md
 __pycache__/
 *.pyc
 
@@ -57,3 +56,10 @@ dbt_packages/
 logs/dbt/.user.yml
 dbt/.user.yml
 dbt/logs/
+
+# Ignoruj wszystkie .md oprócz dokumentacji projektu
+*.md
+!README.md
+!N8N_SETUP_AND_ARCHITECTURE.md
+!INTERNALS.md
+!metabase/DASHBOARD_SETUP.md
