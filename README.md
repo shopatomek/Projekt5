@@ -8,6 +8,7 @@
 [![AI](https://img.shields.io/badge/AI-Groq%20%7C%20Llama%203.3-orange)](/)
 [![BI](https://img.shields.io/badge/BI-Metabase-7172AD?style=flat&logo=metabase&logoColor=white)](/)
 [![CI](https://github.com/shopatomek/Projekt5/actions/workflows/main.yml/badge.svg)](https://github.com/shopatomek/Projekt5/actions/workflows/main.yml)
+![Podgląd projektu](assets/projekt5_asset.gif)
 
 ## 📊 About the Project
 
