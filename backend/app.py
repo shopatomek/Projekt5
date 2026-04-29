@@ -11,6 +11,7 @@ import logging
 from database import execute_query
 from analytics import calculate_crypto_kpis, calculate_stock_kpis
 from ai_insights import generate_daily_summary, analyze_trend, explain_anomaly
+from ml_predictions import predict_price
 from scheduler import run_scheduler
 from data_quality.engine import engine
 from pydantic import BaseModel
@@ -215,18 +216,14 @@ async def get_dashboard_overview():
     try:
         crypto_kpis = calculate_crypto_kpis()
         stock_kpis = calculate_stock_kpis()
-        news = execute_query(
-            """
+        news = execute_query("""
             SELECT title, description, source, published_at, url
             FROM news_articles ORDER BY published_at DESC LIMIT 10
-            """
-        )
-        weather = execute_query(
-            """
+            """)
+        weather = execute_query("""
             SELECT city, temperature, humidity, weather_condition
             FROM weather_data ORDER BY timestamp DESC LIMIT 1
-            """
-        )
+            """)
 
         # Pobierz rzeczywiste dane z bazy do walidacji
         crypto_data = execute_query("SELECT symbol, price_usd, volume_24h, price_change_24h FROM crypto_prices ORDER BY timestamp DESC LIMIT 1")
@@ -428,6 +425,27 @@ async def get_crypto_trend(symbol: str = "BTC", days: int = 7):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/ml/predict")
+def get_price_prediction(symbol: str = "BTC", hours: int = 24):
+    """
+    Returns a price forecast for the next N hours using LinearRegression
+    trained on the last 7 days of crypto_prices data.
+    """
+    if hours > 48:
+        raise HTTPException(status_code=400, detail="Maximum forecast horizon is 48 hours")
+    if hours < 1:
+        raise HTTPException(status_code=400, detail="Minimum forecast horizon is 1 hour")
+
+    try:
+        result = predict_price(symbol.upper(), horizon_hours=hours)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        logger.error(f"ML prediction error for {symbol}: {e}")
+        raise HTTPException(status_code=500, detail="Prediction failed — check backend logs")
+
+
 # =============================================================================
 # NOWE ENDPOINTY (z app_new_endpoints.py)
 # =============================================================================
@@ -456,9 +474,7 @@ async def get_dq_report(hours: int = 24):
     Raport Data Quality z ostatnich N godzin.
     Używany przez Metabase i frontend do pokazania stanu jakości danych.
     """
-    failures = (
-        execute_query(
-            f"""
+    failures = execute_query(f"""
         SELECT
             content->>'table' as table_name,
             content->>'record_id' as record_id,
@@ -470,14 +486,9 @@ async def get_dq_report(hours: int = 24):
           AND generated_at >= NOW() - INTERVAL '{hours} hours'
         ORDER BY generated_at DESC
         LIMIT 100
-        """
-        )
-        or []
-    )
+        """) or []
 
-    anomalies = (
-        execute_query(
-            f"""
+    anomalies = execute_query(f"""
         SELECT
             content->>'message' as message,
             content->'affected_symbols' as symbols,
@@ -487,10 +498,7 @@ async def get_dq_report(hours: int = 24):
           AND generated_at >= NOW() - INTERVAL '{hours} hours'
         ORDER BY generated_at DESC
         LIMIT 20
-        """
-        )
-        or []
-    )
+        """) or []
 
     by_table = {}
     failure_types = []
