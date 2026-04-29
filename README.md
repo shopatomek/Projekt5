@@ -372,22 +372,24 @@ Projekt5/
 ├── setup.sh                    # Automated setup script
 ├── .env.example
 ├── backend/
-│   ├── app.py                  # FastAPI entry point + lifespan scheduler
+│   ├── app.py                  # FastAPI entry point + lifespan scheduler + /api/ml/predict
 │   ├── scheduler.py            # Async Binance fetcher (redundancy + DQ + REFRESH MV)
 │   ├── ai_insights.py          # Groq/Llama: summary, trend analysis, anomaly explain
 │   ├── analytics.py            # KPI calculation layer
 │   ├── database.py             # SQLAlchemy engine + universal execute_query()
 │   ├── embeddings.py           # sentence-transformers model + pgvector embed logic
+│   ├── ml_predictions.py       # LinearRegression time-series forecasting
 │   ├── data_quality/
 │   │   ├── base.py             # ABC DataQualityCheck (validate + fix interface)
 │   │   ├── checks.py           # NotNullCheck, RangeCheck, UrlFormatCheck, FutureTimestampCheck
 │   │   ├── engine.py           # DataQualityEngine orchestrator + DQReport dataclass
 │   │   └── reporters.py        # LogReporter (stdout) + DatabaseReporter (ai_insights)
-│   ├── Dockerfile              # python:3.11-slim
-│   ├── requirements.txt
+│   ├── Dockerfile              # python:3.11-slim (with --default-timeout=1000)
+│   ├── requirements.txt        # includes scikit-learn==1.4.2
 │   └── tests/
-│       ├── test_checks.py      # Unit tests for all check classes
-│       └── test_data_quality.py # Integration tests for engine + reporters
+│       ├── test_checks.py               # Unit tests for all check classes
+│       ├── test_data_quality.py         # Integration tests for engine + reporters
+│       └── test_ml_predictions.py       # Unit tests for ML forecasting
 ├── database/
 │   ├── init.sql                # Schema: tables, indexes, materialized views, pgvector
 │   └── init-metabase.sh        # Creates metabase_app DB on first run
@@ -399,7 +401,7 @@ Projekt5/
 │       ├── staging/            # stg_crypto_prices, stg_news_articles, stg_weather_data
 │       └── marts/              # 6 mart models + schema.yml with dbt tests
 ├── frontend/
-│   ├── src/App.js              # React dashboard (Bloomberg Terminal dark theme)
+│   ├── src/App.js              # React dashboard (Bloomberg Terminal dark theme + ML Forecast toggle)
 │   ├── Dockerfile              # CRA dev server (used with docker-compose.dev.yml)
 │   ├── Dockerfile.prod         # Multi-stage: Node.js builder + nginx:alpine
 │   └── package.json
@@ -408,7 +410,10 @@ Projekt5/
 │       └── workflow.json       # All 4 workflows in one importable file
 ├── metabase/
 │   ├── dbt_Analytics_Dashboard.json   # Importable Metabase dashboard (dbt marts)
-│   └── Market_Daily_Overview.json     # Importable Metabase dashboard (market overview)
+│   ├── Market_Daily_Overview.json     # Importable Metabase dashboard (market overview)
+│   └── DASHBOARD_SETUP.md             # Manual SQL setup instructions (Open Source)
+├── docs/
+│   └── screenshots/            # Dashboard screenshots for README
 └── .github/
     └── workflows/
         └── main.yml            # CI: ruff lint + trufflehog security + docker build
