@@ -1,7 +1,7 @@
 # backend/tests/test_ml_predictions.py
 import pytest
 from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from ml_predictions import predict_price, _build_features
 
 

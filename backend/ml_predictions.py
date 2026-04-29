@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
 import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression  # type: ignore
+from sklearn.preprocessing import StandardScaler  # type: ignore
 
 from database import execute_query
 
