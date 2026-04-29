@@ -538,7 +538,15 @@ function KpiCard({ label, value, sub, accentColor }) {
 // ─── SOURCE PANELS ────────────────────────────────────────────────────────────
 
 // Binance panel — line chart
-function BinancePanel({ trend, symbol, setSymbol }) {
+function BinancePanel({
+  trend,
+  symbol,
+  setSymbol,
+  showForecast,
+  setShowForecast,
+  forecastData,
+  forecastLoading,
+}) {
   const chartRef = useRef(null);
   const chartValues = trend?.data?.map((d) => d.value) || [];
   const chartLabels =
@@ -572,6 +580,34 @@ function BinancePanel({ trend, symbol, setSymbol }) {
       },
     ],
   };
+
+  // Dodaj dataset prognozy jeśli włączona i są dane
+  if (showForecast && forecastData?.forecast?.length > 0) {
+    const forecastValues = forecastData.forecast.map((f) => f.predicted_price);
+    // Użyj przyszłych timestampów jako etykiety lub dodaj na końcu istniejących
+    const forecastLabels = forecastData.forecast.map((f) =>
+      new Date(f.timestamp).toLocaleTimeString("pl-PL", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Europe/Warsaw",
+      }),
+    );
+    // Połącz istniejące etykiety z prognozowanymi
+    chartData.labels = [...chartLabels, ...forecastLabels];
+    chartData.datasets.push({
+      label: `${symbol} Forecast`,
+      data: [...Array(chartLabels.length).fill(null), ...forecastValues],
+      borderColor: "#e6b450",
+      backgroundColor: "transparent",
+      borderWidth: 2,
+      borderDash: [5, 5],
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      fill: false,
+      tension: 0.4,
+    });
+  }
+
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -629,7 +665,20 @@ function BinancePanel({ trend, symbol, setSymbol }) {
             {s}
           </button>
         ))}
+
+        <button
+          style={{
+            ...S.symbolBtn,
+            marginLeft: "auto",
+            borderColor: showForecast ? "#e6b450" : "#2a3f55",
+            color: showForecast ? "#e6b450" : "#7d9ab5",
+          }}
+          onClick={() => setShowForecast(!showForecast)}
+        >
+          {showForecast ? "Hide Forecast" : "ML Forecast"}
+        </button>
       </div>
+
       {/* AI trend note */}
       {trend?.ai_analysis && (
         <div
@@ -647,6 +696,7 @@ function BinancePanel({ trend, symbol, setSymbol }) {
           🤖 {trend.ai_analysis}
         </div>
       )}
+
       {/* Chart */}
       <div style={{ height: "210px" }}>
         {chartValues.length > 0 ? (
@@ -655,10 +705,88 @@ function BinancePanel({ trend, symbol, setSymbol }) {
           <div style={S.loader}>NO DATA YET — COLLECTING...</div>
         )}
       </div>
+
+      {/* Forecast info panel (pod wykresem) */}
+      {showForecast && forecastLoading && (
+        <div
+          style={{
+            marginTop: "16px",
+            textAlign: "center",
+            color: "#4a6278",
+            fontSize: "11px",
+          }}
+        >
+          Loading forecast...
+        </div>
+      )}
+
+      {showForecast && forecastData && !forecastLoading && (
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "12px",
+            background: "#080c14",
+            borderRadius: "8px",
+            border: "1px solid #1c2a3a",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "10px",
+              color: "#e6b450",
+              marginBottom: "8px",
+              letterSpacing: "1px",
+            }}
+          >
+            🔮 Price Forecast (next 6h) | MAE: $
+            {forecastData.mae_usd?.toFixed(2) || "?"}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              overflowX: "auto",
+              paddingBottom: "4px",
+            }}
+          >
+            {forecastData.forecast?.slice(0, 6).map((f, idx) => (
+              <div key={idx} style={{ minWidth: "70px", textAlign: "center" }}>
+                <div style={{ fontSize: "9px", color: "#4a6278" }}>
+                  {new Date(f.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    color: "#e6b450",
+                  }}
+                >
+                  ${Math.round(f.predicted_price)}
+                </div>
+                <div style={{ fontSize: "8px", color: "#4a6278" }}>
+                  ±{Math.round((f.upper_bound - f.lower_bound) / 2)}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              fontSize: "9px",
+              color: "#4a6278",
+              marginTop: "8px",
+              textAlign: "center",
+            }}
+          >
+            Trained on {forecastData.training_points} points | LinearRegression
+          </div>
+        </div>
+      )}
     </>
   );
 }
-
 // OpenMeteo panel — weather data visualization
 function WeatherPanel({ weather }) {
   if (!weather)
@@ -1083,6 +1211,11 @@ export default function App() {
   const [ragAnswer, setRagAnswer] = useState(null);
   const [ragLoading, setRagLoading] = useState(false);
 
+  // ─── ML Forecast States ───────────────────────────────────────────────────────
+  const [showForecast, setShowForecast] = useState(false);
+  const [forecastData, setForecastData] = useState(null);
+  const [forecastLoading, setForecastLoading] = useState(false);
+
   const askRAG = useCallback(async () => {
     if (!ragQuestion.trim()) return;
     setRagLoading(true);
@@ -1144,6 +1277,22 @@ export default function App() {
     }
   }, []);
 
+  const fetchForecast = useCallback(async () => {
+    if (!showForecast) return;
+    setForecastLoading(true);
+    try {
+      const response = await axios.get(`${API}/api/ml/predict`, {
+        params: { symbol: symbol, hours: 6 },
+      });
+      setForecastData(response.data);
+    } catch (error) {
+      console.error("Forecast error:", error);
+      setForecastData(null);
+    } finally {
+      setForecastLoading(false);
+    }
+  }, [showForecast, symbol]);
+
   useEffect(() => {
     Promise.all([fetchOverview(), fetchTrend(symbol), fetchAI()]);
   }, []);
@@ -1158,6 +1307,13 @@ export default function App() {
   useEffect(() => {
     fetchTrend(symbol);
   }, [symbol, fetchTrend]);
+
+  // Fetch forecast when toggle is enabled or symbol changes
+  useEffect(() => {
+    if (showForecast) {
+      fetchForecast();
+    }
+  }, [showForecast, symbol, fetchForecast]);
 
   const prices = overview?.crypto?.prices || [];
   const sentiment = overview?.crypto?.market_sentiment || "Neutral";
@@ -1354,6 +1510,10 @@ export default function App() {
                     trend={trend}
                     symbol={symbol}
                     setSymbol={setSymbol}
+                    showForecast={showForecast}
+                    setShowForecast={setShowForecast}
+                    forecastData={forecastData}
+                    forecastLoading={forecastLoading}
                   />
                 )}
                 {activeSource === "weather" && (
