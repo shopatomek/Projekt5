@@ -275,6 +275,25 @@ Full-text keyword search with AI synthesis is also available: `GET /api/news/sea
 
 ---
 
+### 📈 ML Price Prediction
+
+The dashboard includes a **time‑series forecasting endpoint** that predicts crypto prices for the next N hours.
+
+**How it works:**
+
+- Model: **LinearRegression** from scikit-learn
+- Features: UNIX timestamp, hour-of-day (sin/cos), day-of-week (sin/cos)
+- Training data: last 7 days of historical `crypto_prices`
+- Forecast horizon: up to 48 hours (default 12, frontend uses 6)
+
+**API endpoint:**
+
+```bash
+curl "http://localhost:8000/api/ml/predict?symbol=BTC&hours=12"
+```
+
+---
+
 ## 📊 dbt Analytics Layer
 
 dbt transforms raw PostgreSQL tables into a clean analytics layer accessible from Metabase.
@@ -327,17 +346,18 @@ Since Metabase Open Source does not support JSON import, you can manually create
 
 ## 📡 API Endpoints
 
-| Endpoint                                         | Description                              |
-| ------------------------------------------------ | ---------------------------------------- |
-| `GET /`                                          | Health check                             |
-| `GET /api/dashboard/overview`                    | Aggregated KPIs: crypto, weather, news   |
-| `GET /api/charts/crypto-trend?symbol=BTC&days=7` | Time-series + AI trend analysis          |
-| `GET /api/ai/daily-summary`                      | Market report (Llama 3.3)                |
-| `GET /api/dq/report?hours=24`                    | Data quality metrics + recent anomalies  |
-| `GET /api/news/search?q=...`                     | Full-text news search + AI summary       |
-| `POST /api/rag/query`                            | Semantic search (pgvector) + RAG answer  |
-| `POST /api/rag/embed-existing`                   | One-time embedding backfill for articles |
-| `POST /api/ai/explain-anomaly`                   | Anomaly explanation (called by n8n WF3B) |
+| Endpoint                                         | Description                                                |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| `GET /`                                          | Health check                                               |
+| `GET /api/dashboard/overview`                    | Aggregated KPIs: crypto, weather, news                     |
+| `GET /api/charts/crypto-trend?symbol=BTC&days=7` | Time-series + AI trend analysis                            |
+| `GET /api/ai/daily-summary`                      | Market report (Llama 3.3)                                  |
+| `GET /api/dq/report?hours=24`                    | Data quality metrics + recent anomalies                    |
+| `GET /api/news/search?q=...`                     | Full-text news search + AI summary                         |
+| `GET /api/ml/predict?symbol=BTC&hours=12`        | ML price forecast (LinearRegression, confidence intervals) |
+| `POST /api/rag/query`                            | Semantic search (pgvector) + RAG answer                    |
+| `POST /api/rag/embed-existing`                   | One-time embedding backfill for articles                   |
+| `POST /api/ai/explain-anomaly`                   | Anomaly explanation (called by n8n WF3B)                   |
 
 Interactive docs: `http://localhost:8000/docs`
 
@@ -485,7 +505,7 @@ docker compose ps
 - [x] dbt data freshness monitoring (`dq_metadata` table)
 - [ ] JWT authentication layer
 - [ ] PDF report export
-- [ ] ML price predictions (scikit-learn / statsmodels)
+- [x] ML price predictions (scikit-learn / statsmodels)
 
 ---
 
