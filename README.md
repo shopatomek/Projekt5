@@ -36,6 +36,7 @@ This project is not just a dashboard—it's an **intelligent data orchestration 
 - 🔌 **Zero API key friction** — Binance, BBC RSS, and Open-Meteo all work without registration; only Groq requires a free key
 - 📦 **Production-grade Docker** — memory limits, healthchecks, and a multi-stage nginx build keeping frontend at ~40 MB RAM
 - 🏗️ **dbt analytics layer** — staging models normalize raw data; mart models deliver cross-source aggregations (market daily, news correlation, weather correlation, DQ trend); dbt docs served at `:8080`
+- 📈 **ML Price Prediction** - The dashboard includes a **time‑series forecasting endpoint** that predicts crypto prices for the next N hours using LinearRegression.
 
 **Business context:** 41% of Polish companies identify reporting automation as their top IT priority for 2025/2026. This project demonstrates how to build a resilient, self-healing BI pipeline combining traditional ETL with AI enrichment, modular data quality, dbt transformations, and semantic search — ready to scale from a local dashboard to a production analytics platform.
 
@@ -58,6 +59,7 @@ This project is not just a dashboard—it's an **intelligent data orchestration 
 | **Alerting**           | Telegram Bot API (optional)                     |
 | **Infrastructure**     | Docker, Docker Compose                          |
 | **CI/CD**              | GitHub Actions (lint + security + docker build) |
+| **ML / Forecasting**   | scikit-learn (LinearRegression)                 |
 
 ---
 
