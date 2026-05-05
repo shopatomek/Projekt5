@@ -1,5 +1,5 @@
 # --- Bezpieczeństwo i Zmienne Środowiskowe ---
-# Nigdy nie commituj plików .env, ponieważ zawierają klucze API Gemini/Ollama i hasła DB
+
 .env
 .env.local
 .env.*.local
@@ -27,7 +27,6 @@ frontend/yarn-error.log*
 frontend/.eslintcache
 
 # --- n8n ---
-# Jeśli przechowujesz w tym folderze dane binarne lub lokalne bazy sqlite n8n
 n8n/.n8n/
 n8n/backups/
 
@@ -35,7 +34,7 @@ n8n/backups/
 # Ignorujemy surowe dane, jeśli Docker montuje tu wolumen lokalny
 database/data/
 
-# --- Systemowe / IDE ---
+# --- Systemowe / IDE --
 .DS_Store
 Thumbs.db
 .vscode/
