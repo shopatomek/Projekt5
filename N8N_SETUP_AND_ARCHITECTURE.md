@@ -113,16 +113,16 @@ flowchart TD
     B["HTTP GET\nhttps://api.binance.com/api/v3/ticker/24hr\nparams: symbols=[BTCUSDT, ETHUSDT, ...]\nno API key required"]
     B --> C
 
-    C["Code: Normalize → Bulk SQL\n\nFor each ticker (20 coins):\n symbol = t.symbol.replace USDT\n price  = parseFloat lastPrice\n vol    = parseInt quoteVolume\n change = parseFloat priceChangePercent\n\nBuilds single bulk INSERT query\n(20 rows in 1 SQL statement)"]
+    C["Code: Normalize → Bulk SQL\n\nFor each ticker (20 coins):\n symbol = t.symbol.replace USDT\n price  = parseFloat lastPrice\n vol    = parseInt quoteVolume\n change = parseFloat priceChangePercent\n\nBuilds single bulk INSERT query\(20 rows in 1 SQL statement)"]
     C --> D
 
-    D["Postgres: Execute Query\nINSERT INTO crypto_prices\n symbol, price_usd, market_cap,\n volume_24h, price_change_24h\nON CONFLICT DO NOTHING"]
+    D["Postgres: Execute Query\INSERT INTO crypto_prices\symbol, price_usd, market_cap,\volume_24h, price_change_24h\ON CONFLICT DO NOTHING"]
     D --> E
 
-    E["Code: Prepare Cleanup SQL\n\nBuilds DELETE query:\nDELETE FROM crypto_prices\nWHERE timestamp < NOW - 30 days"]
+    E["Code: Prepare Cleanup SQL\\Builds DELETE query:\DELETE FROM crypto_prices\WHERE timestamp < NOW - 30 days"]
     E --> F
 
-    F["Postgres: Execute Query\nDeletes records older than 30 days\n\nWhy needed:\n288 rows/day × 20 coins = 5,760 rows/day\n30 days = ~172,800 rows max\nWithout cleanup: 2M+ rows/year"]
+    F["Postgres: Execute Query\Deletes records older than 30 days\\Why needed:\288 rows/day × 20 coins = 5,760 rows/day\30 days = ~172,800 rows max\Without cleanup: 2M+ rows/year"]
 ```
 
 > **Note:** n8n WF1 and the backend `scheduler.py` both insert into `crypto_prices`. This is intentional redundancy — the scheduler is the safety net during n8n downtime. `ON CONFLICT DO NOTHING` silently discards duplicates. The backend scheduler also runs the full Data Quality Engine and refreshes `mart_market_daily` — WF1 does not.
@@ -133,21 +133,21 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Schedule Trigger\nevery 1 hour] --> B
+    A[Schedule Trigger\every 1 hour] --> B
     A --> C
 
-    B["HTTP GET BBC Business RSS\nhttps://feeds.bbci.co.uk/news/business/rss.xml\nno API key required\nreturns XML → parsed to JSON by n8n"]
-    C["HTTP GET Open-Meteo\nhttps://api.open-meteo.com/v1/forecast\nlat=52.23 lon=21.01 Warsaw\ncurrent=temperature_2m,humidity,weather_code\nno API key required"]
+    B["HTTP GET BBC Business RSS\https://feeds.bbci.co.uk/news/business/rss.xml\no API key required\nreturns XML → parsed to JSON by n8n"]
+    C["HTTP GET Open-Meteo\https://api.open-meteo.com/v1/forecast\lat=52.23 lon=21.01 Warsaw\current=temperature_2m,humidity,weather_code\no API key required"]
 
-    B --> D["Code: Normalize News\nescapes SQL apostrophes via esc()\nextracts title, description, source, url, pubDate\nslices to 10 most recent articles\nbuilds bulk INSERT SQL (1 statement)"]
+    B --> D["Code: Normalize News\escapes SQL apostrophes via esc()\extracts title, description, source, url, pubDate\slices to 10 most recent articles\builds bulk INSERT SQL (1 statement)"]
 
-    C --> E["Code: Normalize Weather\nmaps WMO weather_code → text description\nextracts temperature, humidity\nbuilds single-row INSERT SQL"]
+    C --> E["Code: Normalize Weather\maps WMO weather_code → text description\extracts temperature, humidity\builds single-row INSERT SQL"]
 
-    D --> F["Postgres: INSERT news_articles\ntitle, description, source, url, published_at\nON CONFLICT (url) DO NOTHING\n— deduplicates by URL"]
+    D --> F["Postgres: INSERT news_articles\title, description, source, url, published_at\ON CONFLICT (url) DO NOTHING\— deduplicates by URL"]
 
-    E --> G["Postgres: INSERT weather_data\ncity='Warsaw', temperature,\nhumidity, weather_condition"]
+    E --> G["Postgres: INSERT weather_data\city='Warsaw', temperature,\humidity, weather_condition"]
 
-    F --> H["Postgres: Cleanup Old Data\nDELETE news older than 7 days\nDELETE weather older than 14 days"]
+    F --> H["Postgres: Cleanup Old Data\DELETE news older than 7 days\DELETE weather older than 14 days"]
     G --> H
 ```
 
@@ -162,15 +162,15 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["Schedule Trigger\nevery 1 hour"] --> B
-    B["HTTP GET\nhttp://backend:8000/api/dashboard/overview\nFastAPI aggregates KPIs from PostgreSQL"] --> C
-    C["HTTP GET\nhttp://backend:8000/api/ai/daily-summary\nFastAPI calls Groq/Llama 3.3\nreturns {summary, insights[], recommendations[]}"] --> D
+    B["HTTP GET\nhttp://backend:8000/api/dashboard/overview\FastAPI aggregates KPIs from PostgreSQL"] --> C
+    C["HTTP GET\nhttp://backend:8000/api/ai/daily-summary\FastAPI calls Groq/Llama 3.3\nreturns {summary, insights[], recommendations[]}"] --> D
     C --> E
 
-    D["Code: Prepare Cache SQL\nserialize AI response to JSONB\nset insight_type='daily_summary'"] --> F
-    F["Postgres: INSERT ai_insights\ntype: daily_summary\nfrontend reads this for AI panel"]
+    D["Code: Prepare Cache SQL\nserialize AI response to JSONB\set insight_type='daily_summary'"] --> F
+    F["Postgres: INSERT ai_insights\ntype: daily_summary\frontend reads this for AI panel"]
 
-    E["Code: Format Summary for Telegram\nbuild message with market highlights"] --> G
-    G["Telegram: Send Message\nhourly market summary to configured chat"]
+    E["Code: Format Summary for Telegram\build message with market highlights"] --> G
+    G["Telegram: Send Message\hourly market summary to configured chat"]
 ```
 
 > WF3A runs every hour. This ensures the AI panel in the React dashboard reflects current market conditions throughout the trading day, and the Telegram chat receives regular updates. The `ai_insights` table retains the full history of generated summaries.
@@ -181,20 +181,20 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    START["Schedule Trigger\n(15 min)"] --> P_ANOM["Postgres: Get Anomalies"]
+    START["Schedule Trigger\(15 min)"] --> P_ANOM["Postgres: Get Anomalies"]
     START --> P_FRESH["Postgres: Check dq_metadata"]
 
     subgraph Anomaly_Engine [Anomaly Engine]
         P_ANOM --> IF_A{Anomalies?}
         IF_A -->|YES| DEDUP["Deduplikacja"]
 
-        DEDUP --> AI_EXP["HTTP: Groq AI\n(Get Explanation)"]
-        DEDUP --> MERGE_A["Merge Node\n(Data + AI Text)"]
+        DEDUP --> AI_EXP["HTTP: Groq AI\(Get Explanation)"]
+        DEDUP --> MERGE_A["Merge Node\(Data + AI Text)"]
         AI_EXP --> MERGE_A
 
         %% Dwa wyjścia z Merge
         MERGE_A --> TG_ANOM["Telegram: ⚠️ Anomaly Alert"]
-        MERGE_A --> DB_SAVE["Postgres: INSERT ai_insights\n(Type: price_anomaly)"]
+        MERGE_A --> DB_SAVE["Postgres: INSERT ai_insights\(Type: price_anomaly)"]
     end
 
     subgraph Freshness_Engine [SLA Monitoring]
@@ -247,15 +247,15 @@ This makes the project **instantly runnable** — `docker compose up` and all th
 flowchart LR
     subgraph Docker["Docker Network"]
         subgraph N8N["n8n container"]
-            WF1[WF1 Crypto\nevery 5 min]
+            WF1[WF1 Crypto\every 5 min]
         end
         subgraph BE["backend container"]
-            SCH[scheduler.py\nasyncio loop\nevery 5 min\n+ DQ + REFRESH MV]
+            SCH[scheduler.py\async loop\nevery 5 min\+ DQ + REFRESH MV]
         end
-        DB[(PostgreSQL\ncrypto_prices\ndq_metadata\nmart_market_daily)]
+        DB[(PostgreSQL\crypto_prices\dq_metadata\mart_market_daily)]
     end
 
-    EXT[Binance Public API\nhttps://api.binance.com]
+    EXT[Binance Public API\https://api.binance.com]
 
     WF1 -->|INSERT| DB
     SCH -->|INSERT + DQ + metadata + REFRESH| DB
