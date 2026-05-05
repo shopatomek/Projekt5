@@ -59,11 +59,11 @@ Toggle the **Active** switch on each workflow.
 ```mermaid
 flowchart LR
     subgraph WF1["WF1: 10 min Crypto Ingestion"]
-        S1[Schedule Trigger] --> H1[HTTP GET\nBinance API]
+        S1[Schedule Trigger] --> H1[HTTP GET\Binance API]
         H1 --> C1[Code: Normalize]
-        C1 --> P1[Postgres\nINSERT]
+        C1 --> P1[Postgres\INSERT]
         P1 --> C2[Code: Cleanup]
-        C2 --> P2[Postgres\nDELETE old]
+        C2 --> P2[Postgres\DELETE old]
     end
 
     subgraph WF2["WF2: Hourly News + Weather"]
@@ -75,7 +75,7 @@ flowchart LR
         C4 --> P4[Postgres]
         P3 --> P5[Cleanup]
         P4 --> P5
-        P5 --> EMB[HTTP POST\n/api/rag/embed-existing]
+        P5 --> EMB[HTTP POST-/api/rag/embed-existing]
     end
 
     subgraph WF3A["WF3A: Hourly AI Summary"]
@@ -162,12 +162,12 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["Schedule Trigger\nevery 1 hour"] --> B
-    B["HTTP GET\nhttp://backend:8000/api/dashboard/overview\FastAPI aggregates KPIs from PostgreSQL"] --> C
-    C["HTTP GET\nhttp://backend:8000/api/ai/daily-summary\FastAPI calls Groq/Llama 3.3\nreturns {summary, insights[], recommendations[]}"] --> D
+    B["HTTP GET\\http://backend:8000/api/dashboard/overview\FastAPI aggregates KPIs from PostgreSQL"] --> C
+    C["HTTP GET\\http://backend:8000/api/ai/daily-summary\FastAPI calls Groq/Llama 3.3\returns {summary, insights[], recommendations[]}"] --> D
     C --> E
 
-    D["Code: Prepare Cache SQL\nserialize AI response to JSONB\set insight_type='daily_summary'"] --> F
-    F["Postgres: INSERT ai_insights\ntype: daily_summary\frontend reads this for AI panel"]
+    D["Code: Prepare Cache SQL\serialize AI response to JSONB\set insight_type='daily_summary'"] --> F
+    F["Postgres: INSERT ai_insights\type: daily_summary\frontend reads this for AI panel"]
 
     E["Code: Format Summary for Telegram\build message with market highlights"] --> G
     G["Telegram: Send Message\hourly market summary to configured chat"]
