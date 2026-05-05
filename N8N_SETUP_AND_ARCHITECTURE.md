@@ -110,19 +110,19 @@ flowchart LR
 flowchart TD
     A[Schedule Trigger\every 10 minutes] --> B
 
-    B["HTTP GET\nhttps://api.binance.com/api/v3/ticker/24hr\nparams: symbols=[BTCUSDT, ETHUSDT, ...]\nno API key required"]
+    B["HTTP GET\https://api.binance.com/api/v3/ticker/24hr\params: symbols=[BTCUSDT, ETHUSDT, ...]\no API key required"]
     B --> C
 
-    C["Code: Normalize → Bulk SQL\n\nFor each ticker (20 coins):\n symbol = t.symbol.replace USDT\n price  = parseFloat lastPrice\n vol    = parseInt quoteVolume\n change = parseFloat priceChangePercent\n\nBuilds single bulk INSERT query\(20 rows in 1 SQL statement)"]
+    C["Code: Normalize → Bulk SQL\For each ticker (20 coins):\symbol = t.symbol.replace USDT\price  = parseFloat lastPrice\n vol    = parseInt quoteVolume\change = parseFloat priceChangePercent\Builds single bulk INSERT query\(20 rows in 1 SQL statement)"]
     C --> D
 
     D["Postgres: Execute Query\INSERT INTO crypto_prices\symbol, price_usd, market_cap,\volume_24h, price_change_24h\ON CONFLICT DO NOTHING"]
     D --> E
 
-    E["Code: Prepare Cleanup SQL\\Builds DELETE query:\DELETE FROM crypto_prices\WHERE timestamp < NOW - 30 days"]
+    E["Code: Prepare Cleanup SQL\Builds DELETE query:\DELETE FROM crypto_prices\WHERE timestamp < NOW - 30 days"]
     E --> F
 
-    F["Postgres: Execute Query\Deletes records older than 30 days\\Why needed:\288 rows/day × 20 coins = 5,760 rows/day\30 days = ~172,800 rows max\Without cleanup: 2M+ rows/year"]
+    F["Postgres: Execute Query\Deletes records older than 30 days\Why needed:\288 rows/day × 20 coins = 5,760 rows/day\30 days = ~172,800 rows max\Without cleanup: 2M+ rows/year"]
 ```
 
 > **Note:** n8n WF1 and the backend `scheduler.py` both insert into `crypto_prices`. This is intentional redundancy — the scheduler is the safety net during n8n downtime. `ON CONFLICT DO NOTHING` silently discards duplicates. The backend scheduler also runs the full Data Quality Engine and refreshes `mart_market_daily` — WF1 does not.
