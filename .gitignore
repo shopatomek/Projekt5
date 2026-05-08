@@ -30,7 +30,7 @@ frontend/.eslintcache
 n8n/.n8n/
 n8n/backups/
 
-# --- Baza Danych ---
+
 # Ignorujemy surowe dane, jeśli Docker montuje tu wolumen lokalny
 database/data/
 
@@ -43,7 +43,6 @@ Thumbs.db
 *.swo
 *.bak
 
-# --- Docker ---
 # Logi kontenerów, jeśli są zapisywane do plików w projekcie
 *.log
 __pycache__/
