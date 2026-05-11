@@ -174,10 +174,10 @@ docker compose up -d --build
 
 # 4. Open in browser
 # React Dashboard:  http://localhost:3000
-# Metabase BI:      http://localhost:3001  (first-run wizard)
-# n8n workflows:    http://localhost:5678  (first-run setup — see N8N_SETUP_AND_ARCHITECTURE.md)
+# Metabase BI:      http://localhost:3001  (first-run setup - see N8N_SETUP_AND_ARCHITECTURE.md)
+# n8n workflows:    http://localhost:5678  (first-run setup - see N8N_SETUP_AND_ARCHITECTURE.md)
 # API Docs:         http://localhost:8000/docs
-# pgAdmin:          http://localhost:5050
+# pgAdmin:          http://localhost:5050  (first-run setup)
 # dbt Docs:         http://localhost:8080
 ```
 
