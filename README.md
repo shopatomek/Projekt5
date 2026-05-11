@@ -183,6 +183,17 @@ docker compose up -d --build
 
 > ⚠️ **n8n requires one-time manual setup** after first run. See [N8N_SETUP_AND_ARCHITECTURE.md](N8N_SETUP_AND_ARCHITECTURE.md) for step-by-step instructions.
 
+## ⏱️ First Run – What to Expect
+
+After starting the project with `docker compose up -d`, the system needs a few minutes to collect **initial data**:
+
+- **First 5 minutes:** No data yet – backend is fetching from Binance.
+- **After 5 minutes:** First price point appears in the chart.
+- **After 10 minutes:** Chart becomes fully visible with trend analysis.
+- **After 50 minutes:** ML Price Forecast becomes available.
+
+**This is normal behavior** – the dashboard populates progressively as data arrives.
+
 ---
 
 ## 🛡️ Data Quality Validation
